@@ -11,7 +11,7 @@ use bevy::ui_render::ui_material::MaterialNode;
 use super::hud::{looks_for, rgb, start_run, HudFont, MenuRoot};
 use super::{data, Phase, Rng, Run, Selection};
 use crate::char_select::race_name;
-use crate::glue::art::{class_tc, race_tc, tc_rect, GlueArt, DIM, GOLD, NAME_EDGE};
+use crate::glue::art::{class_tc, race_tc, tc_rect, GlueArt, GOLD, NAME_EDGE};
 use crate::glue::backdrop::{backdrop_border, tiled_bg_node};
 use crate::glue::widgets::{
     abs, glue_button, icon_button, outlined_text, GlueBtnKind, GlueDisabled, GlueText, Hilight,
@@ -23,9 +23,11 @@ use crate::glue::GlueClicks;
 const ALLIANCE: [u8; 4] = [1, 3, 4, 7];
 const HORDE: [u8; 4] = [2, 5, 6, 8];
 
-/// `CharacterSelectCharacterFrame`'s border and fill tints (Celandia Porcelain & Twilight Plum).
-const FRAME_BORDER: Color = Color::srgb(0.92, 0.78, 0.88);
-const FRAME_FILL: Color = Color::srgba(0.08, 0.06, 0.14, 0.88);
+/// `CharacterSelectCharacterFrame`'s border and fill tints (Celandia Antique Brass & Porcelain Plum).
+const FRAME_BORDER: Color = Color::srgb(0.843, 0.655, 0.282);
+const FRAME_FILL: Color = Color::srgba(0.129, 0.082, 0.176, 0.92);
+const CYAN_ACCENT: Color = Color::srgb(0.569, 0.933, 0.914);
+const PAPER_TEXT: Color = Color::srgb(1.0, 0.953, 0.890);
 
 /// The tower ends under the class grid and Randomize, where the create screen's appearance dials
 /// would start: there is nothing to customise here.
@@ -61,6 +63,18 @@ pub(super) struct PickName;
 
 #[derive(Component)]
 pub(super) struct CoopMenuStatus;
+
+#[derive(Component)]
+pub(super) struct ArenaCardImage;
+
+#[derive(Component)]
+pub(super) struct ChronicleZoneText;
+
+#[derive(Component)]
+pub(super) struct ChronicleHeroText;
+
+#[derive(Resource, Default)]
+pub(super) struct ArenaCards(pub(super) [Option<Handle<Image>>; 4]);
 
 /// The saved pick, `benilla-config/survivors-pick.txt` (`localStorage` on the page):
 /// `class race sex map`, restored at the menu so a reload keeps the last hero and zone.
@@ -150,6 +164,15 @@ pub(super) fn build_menu(
     let Ok(root) = roots.single() else { return };
     let Some(mut assets) = assets else { return };
     art.ensure_loaded(&mut assets, &mut images, &mut add_mats);
+    let arena_cards = [
+        assets.sprite_texture("Interface\\Celandia\\Arena0", &mut images),
+        assets.sprite_texture("Interface\\Celandia\\Arena1", &mut images),
+        assets.sprite_texture("Interface\\Celandia\\Arena2", &mut images),
+        assets.sprite_texture("Interface\\Celandia\\Arena3", &mut images),
+    ];
+    let first_arena = arena_cards[0].clone();
+    commands.insert_resource(ArenaCards(arena_cards));
+
     let f = &font.0;
     commands.entity(root).insert(MenuBuilt).with_children(|ui| {
         tower(ui, &art, f);
@@ -161,7 +184,63 @@ pub(super) fn build_menu(
                 abs(1.0, 3.0, 7.0, 256.0, 128.0),
             ));
         }
-        zone_frame(ui, &art, f);
+
+        // Top-Center Celandia Expansion Cartouche Banner
+        ui.spawn(Node {
+            position_type: PositionType::Absolute,
+            top: Val::Px(14.0),
+            width: Val::Percent(100.0),
+            justify_content: JustifyContent::Center,
+            ..default()
+        })
+        .with_children(|top_wrap| {
+            top_wrap
+                .spawn((
+                    Node {
+                        flex_direction: FlexDirection::Column,
+                        align_items: AlignItems::Center,
+                        padding: UiRect::axes(Val::Px(22.0), Val::Px(7.0)),
+                        border: UiRect::all(Val::Px(2.0)),
+                        border_radius: BorderRadius::all(Val::Px(14.0)),
+                        row_gap: Val::Px(2.0),
+                        ..default()
+                    },
+                    BackgroundColor(Color::srgba(0.129, 0.082, 0.176, 0.90)),
+                    BorderColor::all(FRAME_BORDER),
+                ))
+                .with_children(|banner| {
+                    outlined_text(
+                        banner,
+                        Node::default(),
+                        (),
+                        (),
+                        GlueText {
+                            text: "CELANDIA: WOKECRAFT NoW",
+                            size: 16.0,
+                            color: PAPER_TEXT,
+                            wrap: false,
+                        },
+                        f,
+                        1.0,
+                    );
+                    outlined_text(
+                        banner,
+                        Node::default(),
+                        (),
+                        (),
+                        GlueText {
+                            text: "THE ELSEWHERE TIDE EXPANSION  •  XIRTUS FOSS GPLv3",
+                            size: 11.0,
+                            color: CYAN_ACCENT,
+                            wrap: false,
+                        },
+                        f,
+                        1.0,
+                    );
+                });
+        });
+
+        zone_frame(ui, &art, f, first_arena);
 
         // Co-Op mode toggle bar (`SOLO` / `HOST CO-OP :8091` / `JOIN CO-OP`) and `[Party: N/8]`
         // status line above the character name and Enter World button.
@@ -255,7 +334,7 @@ pub(super) fn build_menu(
                 &art,
                 f,
                 MenuAction::Enter,
-                "Enter World",
+                "Enter Celandia",
                 200.0,
                 60.0,
                 GlueBtnKind::Normal,
@@ -455,8 +534,14 @@ fn tower(ui: &mut ChildSpawnerCommands, art: &GlueArt, f: &Handle<Font>) {
 }
 
 /// The zone list in `CharacterSelectCharacterFrame` (260×642 at TOPRIGHT (-5,-15)), one
-/// character-row per zone, lowest level first.
-fn zone_frame(ui: &mut ChildSpawnerCommands, art: &GlueArt, f: &Handle<Font>) {
+/// character-row per zone, lowest level first, followed by the Kingdom Archipelago painting
+/// card and the Champion Chronicle panel.
+fn zone_frame(
+    ui: &mut ChildSpawnerCommands,
+    art: &GlueArt,
+    f: &Handle<Font>,
+    first_arena: Option<Handle<Image>>,
+) {
     let px = Val::Px;
     let mut order: Vec<(usize, u32, u32)> = (0..data::MAPS.len())
         .map(|i| {
@@ -505,9 +590,9 @@ fn zone_frame(ui: &mut ChildSpawnerCommands, art: &GlueArt, f: &Handle<Font>) {
             (),
             (),
             GlueText {
-                text: "Choose a Zone",
-                size: 18.0,
-                color: DIM,
+                text: "Celandia Kingdoms",
+                size: 17.0,
+                color: GOLD,
                 wrap: false,
             },
             f,
@@ -565,7 +650,7 @@ fn zone_frame(ui: &mut ChildSpawnerCommands, art: &GlueArt, f: &Handle<Font>) {
                         GlueText {
                             text: &format!("{levels}  {}", map.zone),
                             size: 12.0,
-                            color: Color::WHITE,
+                            color: PAPER_TEXT,
                             wrap: false,
                         },
                         f,
@@ -573,6 +658,118 @@ fn zone_frame(ui: &mut ChildSpawnerCommands, art: &GlueArt, f: &Handle<Font>) {
                     );
                 });
         }
+
+        // Kingdom Archipelago Generative Art Preview Card (224x112)
+        if let Some(arena_tex) = first_arena {
+            frame.spawn((
+                ArenaCardImage,
+                ImageNode::new(arena_tex),
+                Node {
+                    position_type: PositionType::Absolute,
+                    left: px(20.0),
+                    top: px(198.0),
+                    width: px(224.0),
+                    height: px(112.0),
+                    border: UiRect::all(px(2.0)),
+                    border_radius: BorderRadius::all(px(6.0)),
+                    ..default()
+                },
+                BorderColor::all(FRAME_BORDER),
+            ));
+        }
+
+        // Kingdom & Champion Chronicle Panel (below the painting card)
+        frame
+            .spawn((
+                Node {
+                    position_type: PositionType::Absolute,
+                    left: px(20.0),
+                    top: px(320.0),
+                    width: px(224.0),
+                    height: px(304.0),
+                    flex_direction: FlexDirection::Column,
+                    padding: UiRect::all(px(10.0)),
+                    row_gap: px(8.0),
+                    border: UiRect::all(px(1.0)),
+                    border_radius: BorderRadius::all(px(6.0)),
+                    ..default()
+                },
+                BackgroundColor(Color::srgba(0.08, 0.05, 0.12, 0.86)),
+                BorderColor::all(Color::srgba(0.843, 0.655, 0.282, 0.65)),
+            ))
+            .with_children(|chron| {
+                outlined_text(
+                    chron,
+                    Node::default(),
+                    (),
+                    (),
+                    GlueText {
+                        text: "REALM CHRONICLE",
+                        size: 13.0,
+                        color: CYAN_ACCENT,
+                        wrap: false,
+                    },
+                    f,
+                    1.0,
+                );
+                outlined_text(
+                    chron,
+                    Node {
+                        width: Val::Percent(100.0),
+                        ..default()
+                    },
+                    (),
+                    ChronicleZoneText,
+                    GlueText {
+                        text: "",
+                        size: 11.5,
+                        color: PAPER_TEXT,
+                        wrap: true,
+                    },
+                    f,
+                    1.0,
+                );
+                chron.spawn((
+                    Node {
+                        width: Val::Percent(100.0),
+                        height: px(1.0),
+                        margin: UiRect::vertical(px(2.0)),
+                        ..default()
+                    },
+                    BackgroundColor(Color::srgba(0.843, 0.655, 0.282, 0.45)),
+                ));
+                outlined_text(
+                    chron,
+                    Node::default(),
+                    (),
+                    (),
+                    GlueText {
+                        text: "CHAMPION KIT",
+                        size: 13.0,
+                        color: GOLD,
+                        wrap: false,
+                    },
+                    f,
+                    1.0,
+                );
+                outlined_text(
+                    chron,
+                    Node {
+                        width: Val::Percent(100.0),
+                        ..default()
+                    },
+                    (),
+                    ChronicleHeroText,
+                    GlueText {
+                        text: "",
+                        size: 11.5,
+                        color: PAPER_TEXT,
+                        wrap: true,
+                    },
+                    f,
+                    1.0,
+                );
+            });
     });
 }
 
@@ -682,6 +879,7 @@ pub(super) fn refresh_menu_ui(
     coop: Res<super::coop::CoopSession>,
     creatures: Option<Res<crate::entities::Creatures>>,
     art: Res<GlueArt>,
+    arena_cards: Option<Res<ArenaCards>>,
     mut buttons: Query<(
         &MenuAction,
         &Interaction,
@@ -692,9 +890,14 @@ pub(super) fn refresh_menu_ui(
         &mut Visibility,
     )>,
     mut labels: Query<&mut Visibility, (With<HoverLabel>, Without<MenuAction>)>,
-    mut faces: Query<(&RaceFace, &mut ImageNode)>,
-    mut name: Query<(&mut Text, &mut TextColor), (With<PickName>, Without<CoopMenuStatus>)>,
-    mut coop_status: Query<(&mut Text, &mut TextColor), (With<CoopMenuStatus>, Without<PickName>)>,
+    mut faces: Query<(&RaceFace, &mut ImageNode), Without<ArenaCardImage>>,
+    mut arena_img: Query<&mut ImageNode, (With<ArenaCardImage>, Without<RaceFace>)>,
+    mut text_queries: ParamSet<(
+        Query<(&mut Text, &mut TextColor), With<PickName>>,
+        Query<(&mut Text, &mut TextColor), With<CoopMenuStatus>>,
+        Query<&mut Text, With<ChronicleZoneText>>,
+        Query<(&mut Text, &mut TextColor), With<ChronicleHeroText>>,
+    )>,
     mut cache: Local<(Option<u32>, bool, Vec<Vec<(u32, u8, u8)>>)>,
 ) {
     let have = creatures.is_some();
@@ -781,8 +984,19 @@ pub(super) fn refresh_menu_ui(
         }
     }
 
+    if let Some(cards) = arena_cards.as_deref() {
+        let map_idx = selection.map.min(cards.0.len() - 1);
+        if let Some(handle) = &cards.0[map_idx] {
+            for mut img in &mut arena_img {
+                if img.image != *handle {
+                    img.image = handle.clone();
+                }
+            }
+        }
+    }
+
     let class = selection.class_def();
-    if let Ok((mut t, mut color)) = name.single_mut() {
+    if let Ok((mut t, mut color)) = text_queries.p0().single_mut() {
         let want = match (class, cur) {
             (Some(c), Some((r, _))) => format!("{} {}", race_name(r), c.name),
             _ => String::new(),
@@ -790,14 +1004,13 @@ pub(super) fn refresh_menu_ui(
         if t.0 != want {
             t.0 = want;
         }
-        // In the class's own colour, as the game's raid frames and chat show it.
         let want = class.map_or(GOLD, |c| rgb(c.color));
         if color.0 != want {
             color.0 = want;
         }
     }
 
-    if let Ok((mut t, mut color)) = coop_status.single_mut() {
+    if let Ok((mut t, mut color)) = text_queries.p1().single_mut() {
         let party = coop.party_count();
         let max_p = super::coop::MAX_PARTY_SIZE;
         let want = match coop.mode {
@@ -812,12 +1025,51 @@ pub(super) fn refresh_menu_ui(
             t.0 = want;
         }
         let want_col = if coop.is_active() {
-            Color::srgb(0.35, 1.0, 0.55)
+            CYAN_ACCENT
         } else {
             GOLD
         };
         if color.0 != want_col {
             color.0 = want_col;
+        }
+    }
+
+    let map_def = selection.map_def();
+    let roster = data::roster(selection.map);
+    let boss_name = roster
+        .bosses
+        .last()
+        .map(|b| b.name)
+        .unwrap_or("Obsidian Colossus");
+    let zone_lore = match selection.map {
+        0 => "Pastel wildwoods, porcelain terraces & glass bridges along the Wake.",
+        1 => "Resonant ice-bell coves & shimmering aurora waters of the Lagoon.",
+        2 => "Turquoise prism canyons, bamboo reeds & mirage plateaus.",
+        _ => "Gilded solar basilicas & obsidian rifts at the edge of the Elsewhere.",
+    };
+    let want_zone = format!(
+        "{} ({})\n{}\nBoss: {}",
+        map_def.name, map_def.zone, zone_lore, boss_name
+    );
+    if let Ok(mut zt) = text_queries.p2().single_mut() {
+        if zt.0 != want_zone {
+            zt.0 = want_zone;
+        }
+    }
+
+    if let Ok((mut ht, mut hcol)) = text_queries.p3().single_mut() {
+        if let Some(c) = class {
+            let (mob_name, mob_desc) = super::mobility::for_class(c.id)
+                .map(|m| (m.name, m.desc))
+                .unwrap_or(("Phase Step", "Burst forward through the Elsewhere."));
+            let want_hero = format!(
+                "{}\nStarting Spell: {}\nMobility [F]: {} — {}",
+                c.name, c.start, mob_name, mob_desc
+            );
+            if ht.0 != want_hero {
+                ht.0 = want_hero;
+            }
+            hcol.0 = PAPER_TEXT;
         }
     }
 }

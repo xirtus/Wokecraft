@@ -1699,12 +1699,31 @@ function buildDbcs(wmoInfo) {
 
   const svkDbc = new WdbcBuilder(35);
   for (let k = 1; k <= 5; k++) {
+    // 1..5: Cast Kits (with Cast SoundID 6201, 6203, 6205, 6207, 6209)
     svkDbc.addRow({
       0: k,
       2: 51, // SpellCastDirected anim
       4: k,  // chest/base effect slot -> effect_id k
       12: k, // world_effect -> effect_id k
-      13: 6200 + (k - 1) * 2 + 1, // SoundID -> Celandia spell sound entry
+      13: 6200 + (k - 1) * 2 + 1, // SoundID -> Celandia spell cast entry
+      15: -1, 16: -1, 17: -1, 18: -1,
+    });
+    // 6..10: Impact Kits (with Impact SoundID 6202, 6204, 6206, 6208, 6210)
+    svkDbc.addRow({
+      0: k + 5,
+      2: 9,  // CombatWound anim
+      4: k,
+      12: k,
+      13: 6200 + (k - 1) * 2 + 2, // SoundID -> Celandia spell impact entry
+      15: -1, 16: -1, 17: -1, 18: -1,
+    });
+    // 11..15: Silent Visual Kits for precast / state / channel (SoundID = 0 so sounds don't double-trigger)
+    svkDbc.addRow({
+      0: k + 10,
+      2: 51,
+      4: k,
+      12: k,
+      13: 0,
       15: -1, 16: -1, 17: -1, 18: -1,
     });
   }
@@ -1714,13 +1733,13 @@ function buildDbcs(wmoInfo) {
   for (let v = 1; v <= 5; v++) {
     svDbc.addRow({
       0: v,
-      1: v, // precast kit
-      2: v, // cast kit
-      3: v, // impact kit
-      4: v, // state kit
-      5: v, // channel kit
-      7: v, // missile_model
-      12: v, // area_effect
+      1: v + 10, // precast kit (silent visual)
+      2: v,      // cast kit (plays cast sound)
+      3: v + 5,  // impact kit (plays impact sound)
+      4: v + 10, // state kit (silent visual)
+      5: v + 10, // channel kit (silent visual)
+      7: v,      // missile_model
+      12: v,     // area_effect
     });
   }
   writeFile('DBFilesClient/SpellVisual.dbc', svDbc.toBuffer());
@@ -1983,7 +2002,7 @@ function buildDbcs(wmoInfo) {
 }
 
 // ============================================================================
-// 5. Fonts (`FRIZQT__.TTF`, `ARIALN.TTF`, `MORPHEUS.TTF`, `SKURRI.TTF`)
+// 5. Fonts (`FRIZQT__.TTF`, `ARIALN.TTF`, `MORPHEUS.TTF`, `SKURRI.TTF`) — Geist Sans + Bricolage
 // ============================================================================
 function patchTtfForClient(srcBuffer) {
   const buf = Buffer.from(srcBuffer);
@@ -2002,17 +2021,21 @@ function patchTtfForClient(srcBuffer) {
 }
 
 function buildFonts() {
-  console.log('[5/5] Installing Wokecraft NoW fonts in WoW/Data/Fonts/...');
-  const j3Root = path.dirname(CELANDIA_DIR);
+  console.log('[5/5] Installing Geist Sans & Celandia Display fonts in WoW/Data/Fonts/...');
+  const geistDir = '/Users/xmacbookm5/Projects/curricula/open_notebook/curriculum/assets';
+  const bricolagePath = path.join(CELANDIA_DIR, 'docs/elsewhere-tide/fonts/bricolage-grotesque-variable.ttf');
+  const fallbackRegular = path.join(REINCARNATION_DIR, 'output/pdf/source/fonts/Barlow-Regular.ttf');
   const fontMap = [
-    ['Fonts/FRIZQT__.TTF', path.join(REINCARNATION_DIR, 'output/pdf/source/fonts/Barlow-Regular.ttf')],
-    ['Fonts/ARIALN.TTF', path.join(REINCARNATION_DIR, 'src/ui/fonts/BarlowSemiCondensed-Regular.ttf')],
-    ['Fonts/MORPHEUS.TTF', path.join(j3Root, 'onslaught-shooter/evangelion-neon-overdrive/fonts/Cormorant-400.ttf')],
-    ['Fonts/SKURRI.TTF', path.join(j3Root, 'xtricky/public/fonts/barlow-condensed-700.ttf')],
+    ['Fonts/FRIZQT__.TTF', path.join(geistDir, 'Geist-SemiBold.ttf'), fallbackRegular],
+    ['Fonts/ARIALN.TTF', path.join(geistDir, 'Geist-Medium.ttf'), fallbackRegular],
+    ['Fonts/MORPHEUS.TTF', path.join(geistDir, 'Geist-Bold.ttf'), fallbackRegular],
+    ['Fonts/SKURRI.TTF', path.join(geistDir, 'Geist-Bold.ttf'), fallbackRegular],
+    ['Fonts/BricolageGrotesque.ttf', bricolagePath, fallbackRegular],
   ];
-  for (const [destRel, srcPath] of fontMap) {
-    if (fs.existsSync(srcPath)) {
-      writeFile(destRel, patchTtfForClient(fs.readFileSync(srcPath)));
+  for (const [destRel, primaryPath, fallbackPath] of fontMap) {
+    const chosen = fs.existsSync(primaryPath) ? primaryPath : fallbackPath;
+    if (fs.existsSync(chosen)) {
+      writeFile(destRel, patchTtfForClient(fs.readFileSync(chosen)));
     }
   }
 }
@@ -2023,6 +2046,8 @@ buildModels();
 const wmoInfo = await buildTerrain();
 buildDbcs(wmoInfo);
 buildFonts();
-console.log(`Done! Built Wokecraft NoW (Celandia + Sister-Project) WoW/Data corpus in ${((Date.now() - t0) / 1000).toFixed(2)}s.`);
+const { execFileSync } = await import('node:child_process');
+execFileSync('python3', [path.join(__dirname, 'render-celandia-art.py')], { stdio: 'inherit' });
+console.log(`Done! Built Celandia: Wokecraft NoW — The Elsewhere Tide Expansion WoW/Data corpus in ${((Date.now() - t0) / 1000).toFixed(2)}s.`);
 
 

@@ -11,26 +11,24 @@ use super::backdrop::BackdropEdges;
 
 // ── The authored glue palette ────────────────────────────────────────────────────────────────────
 
-/// `GlueFontNormal*`'s Celandia Rose-Champagne / Pearlescent Gilt accent.
-pub(crate) const GOLD: Color = Color::srgb(0.96, 0.76, 0.86);
-/// `GlueFontDisable*`'s gray.
-pub(crate) const DIM: Color = Color::srgb(0.5, 0.5, 0.5);
-/// The info bodies' `GlueFontCharacterCreate`: white, from `GlueFontHighlightSmall`.
-pub(crate) const INFO_TEXT: Color = Color::WHITE;
-/// The glue screens' root fill: Porcelain Court Twilight, Frostbell Azure, and Nocturnum Plum.
-pub(crate) const BACKDROP: Color = Color::srgb(0.06, 0.05, 0.11);
-pub(crate) const BACKDROP_ALLIANCE: Color = Color::srgb(0.06, 0.10, 0.18);
-pub(crate) const BACKDROP_HORDE: Color = Color::srgb(0.14, 0.06, 0.16);
-/// `FACTION_BACKDROP_COLOR_TABLE` (CharacterCreate.lua): the info panels take only the fill (the
-/// border tint is commented out); the name box takes both, always the Alliance row.
-pub(crate) const ALLIANCE_BORDER: Color = Color::srgb(0.62, 0.46, 0.68);
-pub(crate) const ALLIANCE_FILL: Color = Color::srgb(0.06, 0.10, 0.18);
-pub(crate) const HORDE_FILL: Color = Color::srgb(0.14, 0.06, 0.16);
-/// Fallbacks with no client art; `FALLBACK_ALPHA` matches the ~0.8 alpha baked into
-/// `UI-Tooltip-Background`.
-pub(crate) const BTN_BG: Color = Color::srgba(1.0, 1.0, 1.0, 0.05);
-pub(crate) const BTN_HOVER: Color = Color::srgba(1.0, 1.0, 1.0, 0.14);
-pub(crate) const FALLBACK_ALPHA: f32 = 0.8;
+/// `GlueFontNormal*`'s Celandia Aureate Champagne-Gold (`--gold: #ffe28a`).
+pub(crate) const GOLD: Color = Color::srgb(1.0, 0.886, 0.541);
+/// `GlueFontDisable*`'s muted lilac-stone (`#8f849c`).
+pub(crate) const DIM: Color = Color::srgb(0.56, 0.52, 0.61);
+/// The info bodies' `GlueFontCharacterCreate`: warm porcelain paper (`--paper: #fff3e3`).
+pub(crate) const INFO_TEXT: Color = Color::srgb(1.0, 0.953, 0.890);
+/// The glue screens' root fill: Celandia Porcelain Twilight (`#181022`), Frostbell Lagoon (`#121d2c`), and Nocturnum Plum (`#21152d`).
+pub(crate) const BACKDROP: Color = Color::srgb(0.094, 0.063, 0.133);
+pub(crate) const BACKDROP_ALLIANCE: Color = Color::srgb(0.071, 0.114, 0.173);
+pub(crate) const BACKDROP_HORDE: Color = Color::srgb(0.129, 0.082, 0.176);
+/// `FACTION_BACKDROP_COLOR_TABLE` (CharacterCreate.lua): Celandia antique brass border (`--brass: #d7a748`) and deep plum fills.
+pub(crate) const ALLIANCE_BORDER: Color = Color::srgb(0.843, 0.655, 0.282);
+pub(crate) const ALLIANCE_FILL: Color = Color::srgb(0.098, 0.067, 0.145);
+pub(crate) const HORDE_FILL: Color = Color::srgb(0.129, 0.082, 0.176);
+/// Fallbacks with no client art; `FALLBACK_ALPHA` matches the ~0.88 alpha of Celandia glass panels.
+pub(crate) const BTN_BG: Color = Color::srgba(0.16, 0.10, 0.22, 0.85);
+pub(crate) const BTN_HOVER: Color = Color::srgba(0.28, 0.18, 0.38, 0.95);
+pub(crate) const FALLBACK_ALPHA: f32 = 0.88;
 
 /// The info panels' backdrop: `TextPanel-Border`, edge/tile 32 (CharacterCreate.xml).
 pub(crate) const PANEL_EDGE: f32 = 32.0;

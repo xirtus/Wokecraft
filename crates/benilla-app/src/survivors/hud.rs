@@ -16,13 +16,13 @@ use super::hero::{self, Hero};
 use super::minimap::{self, MiniMap};
 use super::{Owned, Phase, Rng, Run, Selection, Stats};
 
-const GOLD: Color = Color::srgb(0.96, 0.76, 0.86);
+const GOLD: Color = Color::srgb(1.0, 0.886, 0.541);
 /// The mobility button's edge, an action button's 36 units.
 const MOBILITY_SIZE: f32 = 40.0;
-const EDGE: Color = Color::srgb(0.62, 0.46, 0.68);
-const BUTTON: Color = Color::srgba(0.11, 0.08, 0.18, 0.95);
-const BUTTON_HOT: Color = Color::srgba(0.24, 0.14, 0.34, 0.98);
-const DIM: Color = Color::srgb(0.68, 0.64, 0.74);
+const EDGE: Color = Color::srgb(0.843, 0.655, 0.282);
+const BUTTON: Color = Color::srgba(0.129, 0.082, 0.176, 0.96);
+const BUTTON_HOT: Color = Color::srgba(0.24, 0.15, 0.33, 0.98);
+const DIM: Color = Color::srgb(0.76, 0.71, 0.82);
 pub(super) const DIM_GREY: Color = DIM;
 pub(super) const GOLD_TONE: Color = GOLD;
 

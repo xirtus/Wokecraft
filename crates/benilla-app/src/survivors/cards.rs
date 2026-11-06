@@ -11,12 +11,12 @@ use super::fill::FillMaterial;
 use super::hud::{self, Choice, HudFont, Offer, SpellIcon};
 use super::{Phase, Rng, Run};
 
-/// WoW's item-quality colours (`ITEM_QUALITY_COLORS`).
-pub(super) const COMMON: Color = Color::srgb(1.0, 1.0, 1.0);
-pub(super) const UNCOMMON: Color = Color::srgb(0.118, 1.0, 0.0);
-pub(super) const RARE: Color = Color::srgb(0.0, 0.439, 0.867);
-pub(super) const EPIC: Color = Color::srgb(0.639, 0.208, 0.933);
-pub(super) const LEGENDARY: Color = Color::srgb(1.0, 0.502, 0.0);
+/// Celandia — The Elsewhere Tide card quality colors (`--paper`, `--cyan`, `--pink`, `--lilac`, `--gold`).
+pub(super) const COMMON: Color = Color::srgb(1.0, 0.953, 0.890);
+pub(super) const UNCOMMON: Color = Color::srgb(0.569, 0.933, 0.914);
+pub(super) const RARE: Color = Color::srgb(1.0, 0.608, 0.820);
+pub(super) const EPIC: Color = Color::srgb(0.808, 0.706, 1.0);
+pub(super) const LEGENDARY: Color = Color::srgb(1.0, 0.886, 0.541);
 
 const CARD_W: f32 = 236.0;
 const CARD_H: f32 = 330.0;
@@ -227,7 +227,7 @@ pub(super) fn deal_cards(
                 Visibility::Hidden,
             ))
             .with_children(|c| {
-                // A dark face lit from the top in the rarity's colour, inside the border.
+                // Celandia porcelain twilight card face lit from the top in the rarity's colour.
                 let inner_h = CARD_H - 4.0;
                 c.spawn((
                     Node {
@@ -241,14 +241,14 @@ pub(super) fn deal_cards(
                     MaterialNode(
                         fills.add(
                             FillMaterial::vertical(
-                                rc.mix(&Color::BLACK, 0.55).with_alpha(0.98),
-                                Color::srgba(0.05, 0.04, 0.035, 0.97),
-                                0.42,
-                                Color::srgba(0.02, 0.015, 0.01, 0.98),
+                                rc.mix(&Color::srgb(0.129, 0.082, 0.176), 0.62).with_alpha(0.98),
+                                Color::srgba(0.129, 0.082, 0.176, 0.97),
+                                0.44,
+                                Color::srgba(0.078, 0.047, 0.110, 0.98),
                                 8.0 / inner_h,
                             )
                             .with_glow(
-                                rc.with_alpha(0.45),
+                                rc.with_alpha(0.42),
                                 Vec2::new(0.5, 60.0 / inner_h),
                                 Vec2::new((CARD_W - 4.0) / 2.0 / inner_h, 90.0 / inner_h),
                             ),
