@@ -1633,32 +1633,31 @@ export function buildCelandiaAudio(writeFile, WdbcBuilder, f32) {
   const creatureSoundDbc = new WdbcBuilder(30, []);
   function addCreatureSoundRow(id, prefix, footstepId = 1, fidgetDelayMin = 120, fidgetDelayMax = 240) {
     const base = archetypeBaseId[prefix];
-    const npcSoundId = prefix === 'HeroF' ? 1 : prefix === 'HeroM' ? 2 : 0;
     creatureSoundDbc.addRow([
       id,
-      base + 0, // Exertion
-      base + 0, // ExertionCritical
-      base + 1, // Injury
-      base + 2, // InjuryCritical
-      0,        // InjuryCrushingBlow
-      base + 3, // Death
-      0,        // Stun
-      0,        // Stand
-      footstepId,
-      base + 4, // Aggro
-      0,        // WingFlap
-      0,        // WingGlide
-      0,        // Alert (disabled so idle creatures don't spam alert sounds)
-      0,        // Fidget0 (disabled so idle creatures don't spam fidget sounds)
-      0, 0, 0, 0,
-      1,        // CustomAttack0
-      0, 0, 0,
-      npcSoundId, // NPCSoundID -> NPCSounds.dbc row (1 or 2)
-      0,        // LoopSoundID
-      1,        // CreatureImpactType
-      0, 0,
-      fidgetDelayMin,
-      fidgetDelayMax,
+      base + 0, // 1: Exertion
+      base + 0, // 2: ExertionCritical
+      base + 1, // 3: Injury
+      base + 2, // 4: InjuryCritical
+      0,        // 5: InjuryCrushingBlow
+      base + 3, // 6: Death
+      0,        // 7: Stun
+      0,        // 8: Stand
+      footstepId, // 9:SoundFootstepID
+      base + 4, // 10: Aggro
+      0,        // 11: WingFlap
+      0,        // 12: WingGlide
+      0,        // 13: Alert
+      0,        // 14: Fidget0
+      0, 0, 0,  // 15..17: Fidget1..3
+      0, 0, 0, 0, // 18..21: CustomAttack0..3
+      0,        // 22: NPCSoundID (unused)
+      0,        // 23: LoopSoundID (0 = no continuous body loop!)
+      1,        // 24: CreatureImpactType
+      0, 0,     // 25..26: JumpStart, JumpEnd
+      0,        // 27: PetAttack
+      fidgetDelayMin, // 28: PetOrder / FidgetDelayMin
+      fidgetDelayMax, // 29: PetDismiss / FidgetDelayMax
     ]);
     return id;
   }
