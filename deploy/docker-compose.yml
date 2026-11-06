@@ -1,0 +1,69 @@
+version: "3.9"
+
+# ==============================================================================
+# Self-Hosted VPS Stack for Celandia: Xirtoth (Survivors + Client-Server RPG/MMO)
+# ==============================================================================
+# Usage:
+#   1. Generate the Celandia world data (if not already built):
+#      node scripts/build-celandia-data.mjs
+#   2. Start the full stack on your VPS:
+#      docker compose -f deploy/docker-compose.yml up -d --build
+#
+# Ports exposed:
+#   - 8090/tcp : WebGPU Browser Client + Celandia /data CDN + WebSocket proxy (/ws/3724, /ws/8085)
+#   - 3724/tcp : Native Rust 1.12.1 SRP6 Auth / Realm List Server (celandia-server)
+#   - 8085/tcp : Native Rust 1.12.1 Authoritative World Server (celandia-server)
+#
+# Note for CMaNGOS / vMaNGOS operators:
+#   `deploy/celandia-world.sql` provides a full SQL world & realm seed if you
+#   wish to point an external CMaNGOS/vMaNGOS `mangosd` + `realmd` instance at
+#   MariaDB instead of the built-in Rust `celandia-server`.
+
+services:
+  # Authoritative Native Rust 1.12.1 (build 5875) Auth (:3724) + World (:8085) Server
+  xirtoth-world:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: xirtoth-world
+    restart: unless-stopped
+    command:
+      - celandia-server
+      - --auth-bind
+      - 0.0.0.0:3724
+      - --world-bind
+      - 0.0.0.0:8085
+      - --public-world-addr
+      - "${PUBLIC_WORLD_ADDR:-127.0.0.1:8085}"
+      - --realm-name
+      - "Wokecraft NoW — Celandia"
+      - --db-path
+      - /app/data/celandia-db.json
+    environment:
+      RUST_LOG: "info"
+    ports:
+      - "3724:3724"
+      - "8085:8085"
+    volumes:
+      - xirtoth_world_data:/app/data
+
+  # WebGPU WASM Host + /data Loose-File CDN + WebSocket-to-TCP Bridge (/ws/3724, /ws/8085)
+  xirtoth-host:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: xirtoth-host
+    restart: unless-stopped
+    depends_on:
+      - xirtoth-world
+    environment:
+      BIND_ADDR: "0.0.0.0:8090"
+      UPSTREAM_HOST: "xirtoth-world"
+      RUST_LOG: "info"
+    ports:
+      - "8090:8090"
+    volumes:
+      - ../WoW/Data:/app/WoW/Data:ro
+
+volumes:
+  xirtoth_world_data:

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="rose" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff0f6"/>
+      <stop offset="0.5" stop-color="#f59ab8"/>
+      <stop offset="1" stop-color="#b86cff"/>
+    </linearGradient>
+    <linearGradient id="frost" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8fbff"/>
+      <stop offset="1" stop-color="#8fd6f0"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="30" fill="#171224" stroke="#f59ab8" stroke-width="2.8"/>
+  <circle cx="32" cy="32" r="24" fill="none" stroke="#8fd6f0" stroke-width="1.2" stroke-opacity="0.55"/>
+  <polygon points="32,8 37,25 54,18 41,32 54,46 37,39 32,56 27,39 10,46 23,32 10,18 27,25" fill="url(#rose)" stroke="#2a1d3d" stroke-width="1.2" stroke-linejoin="round"/>
+  <polygon points="32,14 36,28 50,32 36,36 32,50 28,36 14,32 28,28" fill="url(#frost)"/>
+  <circle cx="32" cy="32" r="4.2" fill="#ffffff"/>
+</svg>

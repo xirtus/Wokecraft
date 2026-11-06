@@ -1,0 +1,29 @@
+[package]
+name = "warcraft-survivors"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Wokecraft NoW — Survivors: Solo & 2-8 Player Co-Op survival mode across the 5 Kingdoms of Celandia and The Elsewhere"
+
+[lints]
+workspace = true
+
+[features]
+default = ["dev"]
+dev = ["benilla-app/dev"]
+
+[dependencies]
+benilla-app = { path = "../benilla-app", default-features = false }
+
+[build-dependencies]
+benilla-buildstamp = { path = "../benilla-buildstamp" }
+
+[[bin]]
+name = "wokecraft-survivors"
+path = "src/main.rs"
+test = false
+
+[[bin]]
+name = "warcraft-survivors"
+path = "src/main.rs"
+test = false

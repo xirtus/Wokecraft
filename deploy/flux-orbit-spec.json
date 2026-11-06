@@ -1,0 +1,50 @@
+{
+  "version": 7,
+  "name": "xirtothcelandia",
+  "description": "Celandia: Xirtoth Survivors & MMO Host (wenilla-host + Celandia Data + WebSocket Realm Proxy)",
+  "owner": "REPLACE_WITH_YOUR_ZELID",
+  "instances": 3,
+  "staticip": false,
+  "enterprise": "",
+  "compose": [
+    {
+      "name": "xirtothdb",
+      "description": "MariaDB persistence for Celandia MMO accounts and characters",
+      "repotag": "mariadb:10.11",
+      "ports": [3306],
+      "domains": [""],
+      "environmentParameters": [
+        "MARIADB_ROOT_PASSWORD=xirtoth_flux_secret",
+        "MARIADB_DATABASE=realmd",
+        "MARIADB_USER=mangos",
+        "MARIADB_PASSWORD=mangos"
+      ],
+      "commands": [],
+      "containerPorts": [3306],
+      "containerData": "g:/var/lib/mysql",
+      "cpu": 1.0,
+      "ram": 2000,
+      "hdd": 20,
+      "tiered": false
+    },
+    {
+      "name": "xirtothhost",
+      "description": "Celandia WebGPU Client Host, Loose-File Asset Server & Realm WebSocket Proxy",
+      "repotag": "ghcr.io/j3games/xirtoth-celandia-host:latest",
+      "ports": [8090, 3724, 8085],
+      "domains": ["play.xirtoth.com"],
+      "environmentParameters": [
+        "BIND_ADDR=0.0.0.0:8090",
+        "UPSTREAM_HOST=127.0.0.1",
+        "RUST_LOG=info"
+      ],
+      "commands": [],
+      "containerPorts": [8090, 3724, 8085],
+      "containerData": "/tmp",
+      "cpu": 2.0,
+      "ram": 4000,
+      "hdd": 15,
+      "tiered": false
+    }
+  ]
+}

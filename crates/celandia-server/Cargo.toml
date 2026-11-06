@@ -1,0 +1,27 @@
+[package]
+name = "celandia-server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Authoritative WoW 1.12.1 (build 5875) Realm (:3724) and World (:8085) server for Celandia: The Elsewhere Tide"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+sha1.workspace = true
+benilla-srp = { path = "../benilla-srp" }
+flate2 = "1.0"
+num-bigint = "0.4.6"
+rand = "0.8.6"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "io-util", "sync", "time"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+[dev-dependencies]
+benilla-protocol = { path = "../benilla-protocol" }
+futures-lite = "2.6.1"
