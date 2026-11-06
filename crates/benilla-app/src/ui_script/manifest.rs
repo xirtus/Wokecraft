@@ -206,12 +206,139 @@ pub(super) fn close_core(script: &UiScript, toc: benilla_ui::status::Status) -> 
     load_core_bindings(script)
 }
 
+#[cfg(not(test))]
+const FALLBACK_BINDINGS_XML: &str = r#"<Bindings>
+    <Binding name="MOVEANDSTEER" runOnUp="true" header="MOVEMENT">
+        if ( keystate == "down" ) then MoveAndSteerStart(); else MoveAndSteerStop(); end
+    </Binding>
+    <Binding name="MOVEFORWARD" runOnUp="true">
+        if ( keystate == "down" ) then MoveForwardStart(); else MoveForwardStop(); end
+    </Binding>
+    <Binding name="MOVEBACKWARD" runOnUp="true">
+        if ( keystate == "down" ) then MoveBackwardStart(); else MoveBackwardStop(); end
+    </Binding>
+    <Binding name="TURNLEFT" runOnUp="true">
+        if ( keystate == "down" ) then TurnLeftStart(); else TurnLeftStop(); end
+    </Binding>
+    <Binding name="TURNRIGHT" runOnUp="true">
+        if ( keystate == "down" ) then TurnRightStart(); else TurnRightStop(); end
+    </Binding>
+    <Binding name="STRAFELEFT" runOnUp="true">
+        if ( keystate == "down" ) then StrafeLeftStart(); else StrafeLeftStop(); end
+    </Binding>
+    <Binding name="STRAFERIGHT" runOnUp="true">
+        if ( keystate == "down" ) then StrafeRightStart(); else StrafeRightStop(); end
+    </Binding>
+    <Binding name="JUMP">
+        Jump();
+    </Binding>
+    <Binding name="SITORSTAND">
+        SitOrStand();
+    </Binding>
+    <Binding name="TOGGLESHEATH">
+        ToggleSheath();
+    </Binding>
+    <Binding name="TOGGLEAUTORUN">
+        ToggleAutoRun();
+    </Binding>
+    <Binding name="TOGGLERUN">
+        ToggleRun();
+    </Binding>
+    <Binding name="CAMERAORSELECTORMOVE" runOnUp="true" hidden="true">
+        if ( keystate == "down" ) then CameraOrSelectOrMoveStart(); else CameraOrSelectOrMoveStop(); end
+    </Binding>
+    <Binding name="TURNORACTION" runOnUp="true" hidden="true">
+        if ( keystate == "down" ) then TurnOrActionStart(); else TurnOrActionStop(); end
+    </Binding>
+    <Binding name="CAMERAZOOMIN" header="CAMERA">
+        CameraZoomIn(1.0);
+    </Binding>
+    <Binding name="CAMERAZOOMOUT">
+        CameraZoomOut(1.0);
+    </Binding>
+    <Binding name="TARGETNEARESTENEMY" header="TARGETING">
+        TargetNearestEnemy();
+    </Binding>
+    <Binding name="TARGETPREVIOUSENEMY">
+        TargetNearestEnemy(1);
+    </Binding>
+    <Binding name="TARGETNEARESTFRIEND">
+        TargetNearestFriend();
+    </Binding>
+    <Binding name="TARGETLASTTARGET">
+        TargetLastTarget();
+    </Binding>
+    <Binding name="ATTACKTARGET">
+        AttackTarget();
+    </Binding>
+    <Binding name="ACTIONBUTTON1" runOnUp="true" header="ACTIONBAR">
+        if ( keystate == "down" ) then ActionButtonDown(1); else ActionButtonUp(1); end
+    </Binding>
+    <Binding name="ACTIONBUTTON2" runOnUp="true">
+        if ( keystate == "down" ) then ActionButtonDown(2); else ActionButtonUp(2); end
+    </Binding>
+    <Binding name="ACTIONBUTTON3" runOnUp="true">
+        if ( keystate == "down" ) then ActionButtonDown(3); else ActionButtonUp(3); end
+    </Binding>
+    <Binding name="ACTIONBUTTON4" runOnUp="true">
+        if ( keystate == "down" ) then ActionButtonDown(4); else ActionButtonUp(4); end
+    </Binding>
+    <Binding name="ACTIONBUTTON5" runOnUp="true">
+        if ( keystate == "down" ) then ActionButtonDown(5); else ActionButtonUp(5); end
+    </Binding>
+    <Binding name="ACTIONBUTTON6" runOnUp="true">
+        if ( keystate == "down" ) then ActionButtonDown(6); else ActionButtonUp(6); end
+    </Binding>
+    <Binding name="ACTIONBUTTON7" runOnUp="true">
+        if ( keystate == "down" ) then ActionButtonDown(7); else ActionButtonUp(7); end
+    </Binding>
+    <Binding name="ACTIONBUTTON8" runOnUp="true">
+        if ( keystate == "down" ) then ActionButtonDown(8); else ActionButtonUp(8); end
+    </Binding>
+    <Binding name="ACTIONBUTTON9" runOnUp="true">
+        if ( keystate == "down" ) then ActionButtonDown(9); else ActionButtonUp(9); end
+    </Binding>
+    <Binding name="ACTIONBUTTON10" runOnUp="true">
+        if ( keystate == "down" ) then ActionButtonDown(10); else ActionButtonUp(10); end
+    </Binding>
+    <Binding name="ACTIONBUTTON11" runOnUp="true">
+        if ( keystate == "down" ) then ActionButtonDown(11); else ActionButtonUp(11); end
+    </Binding>
+    <Binding name="ACTIONBUTTON12" runOnUp="true">
+        if ( keystate == "down" ) then ActionButtonDown(12); else ActionButtonUp(12); end
+    </Binding>
+    <Binding name="TOGGLEWORLDMAP" header="INTERFACE">
+        if ( ToggleWorldMap ) then ToggleWorldMap(); end
+    </Binding>
+    <Binding name="TOGGLEGAMEMENU">
+        if ( ToggleGameMenu ) then ToggleGameMenu(); end
+    </Binding>
+    <Binding name="OPENALLBAGS">
+        if ( OpenAllBags ) then OpenAllBags(); end
+    </Binding>
+    <Binding name="TOGGLEBACKPACK">
+        if ( ToggleBackpack ) then ToggleBackpack(); end
+    </Binding>
+    <Binding name="TOGGLECHARACTER0">
+        if ( ToggleCharacter ) then ToggleCharacter("PaperDollFrame"); end
+    </Binding>
+</Bindings>"#;
+
 /// The stock key-binding commands, `UI_Init`'s next step after the toc walk: the chain's
 /// `Interface\FrameXML\Bindings.xml` (`0x842f9c`), when the chain has it (`0x48fff9`), through
 /// the loader addons' files go through (`0x4b6f70`, called at `0x490018` here and `0x51f443` for
 /// an addon). Every command benilla has is a row of this file, its body the file's own Lua.
 pub(super) fn load_core_bindings(script: &UiScript) -> Vec<String> {
     let Some(bytes) = reference_ui::read(reference_ui::BINDINGS) else {
+        #[cfg(not(test))]
+        if let Ok(bindings) = benilla_ui::bindings_xml::parse(FALLBACK_BINDINGS_XML) {
+            script.register_bindings(&bindings);
+            info!(
+                "bindings: {} built-in fallback commands registered",
+                bindings.len()
+            );
+            return Vec::new();
+        }
         warn!(
             "ui_script: {} is not in the patch chain — no key binding has a command",
             reference_ui::BINDINGS

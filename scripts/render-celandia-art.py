@@ -658,7 +658,23 @@ def build_spell_and_weapon_icons():
     serein = load_art_image("10-serein-conversation.png")
 
     icon_defs = [
-        # (filename, bg_sheet, primary_rgb, secondary_rgb, motif)
+        # Exact SPELL_ICONS names referenced by SpellIcon.dbc & ItemDisplayInfo.dbc
+        ("Ability_Porcelain_Slash", wildwoods, PINK_BLOSSOM, GOLD_AUREATE, "blade_arc"),
+        ("Ability_Porcelain_Whirl", wildwoods, PINK_BLOSSOM, CYAN_SEAFOAM, "vortex_slash"),
+        ("Ability_Porcelain_RoguishHook", crossing, GOLD_AUREATE, PINK_BLOSSOM, "spear_ray"),
+        ("Spell_Frostbell_Chime", serein, CYAN_SEAFOAM, PAPER_WARM, "bell_nova"),
+        ("Spell_Frostbell_Nova", serein, PAPER_WARM, CYAN_SEAFOAM, "shock_ring"),
+        ("Spell_Frostbell_Squall", crossing, CYAN_SEAFOAM, LILAC_MIST, "comet"),
+        ("Spell_Glasswake_Prism", crossing, CYAN_SEAFOAM, GOLD_AUREATE, "prism_beam"),
+        ("Spell_Glasswake_Refract", crossing, PINK_BLOSSOM, CYAN_SEAFOAM, "compass_star"),
+        ("Spell_Aureate_Sunburst", aureate, GOLD_AUREATE, PINK_BLOSSOM, "sunburst"),
+        ("Spell_Aureate_Sanctuary", aureate, GOLD_AUREATE, PAPER_WARM, "aegis_shield"),
+        ("Spell_Nocturnum_Lantern", archipelagos, LILAC_MIST, PINK_BLOSSOM, "hex_vortex"),
+        ("Spell_Nocturnum_Eclipse", archipelagos, PINK_BLOSSOM, LILAC_MIST, "crescent"),
+        ("Spell_Tekka_Voltekka", crossing, CYAN_SEAFOAM, GOLD_AUREATE, "lightning"),
+        ("Spell_Jem_Starlight", serein, PINK_BLOSSOM, CYAN_SEAFOAM, "compass_star"),
+        ("Ability_Sister_SoulRend", archipelagos, (255, 110, 140, 255), GOLD_AUREATE, "blade_arc"),
+        # Additional aliases & weapon icons
         ("Ability_PorcelainWaltz", wildwoods, PINK_BLOSSOM, GOLD_AUREATE, "blade_arc"),
         ("Spell_FrostbellChime", serein, CYAN_SEAFOAM, PAPER_WARM, "bell_nova"),
         ("Spell_GlasswakeBeam", crossing, CYAN_SEAFOAM, GOLD_AUREATE, "prism_beam"),
@@ -674,7 +690,6 @@ def build_spell_and_weapon_icons():
         ("Spell_GildedAegis", aureate, GOLD_AUREATE, CYAN_SEAFOAM, "aegis_shield"),
         ("Spell_Chronocompass", aureate, GOLD_AUREATE, CYAN_SEAFOAM, "compass_star"),
         ("Spell_Moonlace", serein, LILAC_MIST, CYAN_SEAFOAM, "crescent"),
-        # Mobility & Weapons
         ("Ability_Lunge", wildwoods, PINK_BLOSSOM, GOLD_AUREATE, "wing_dash"),
         ("Ability_GildedStep", aureate, GOLD_AUREATE, PAPER_WARM, "sunburst"),
         ("Ability_Tailwind", crossing, CYAN_SEAFOAM, PAPER_WARM, "wing_dash"),

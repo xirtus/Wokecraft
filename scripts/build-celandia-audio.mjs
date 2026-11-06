@@ -86,7 +86,7 @@ function midiToFreq(midi) {
 /**
  * Apply a multi-tap stereo Schroeder-style reverb tail + crossfade loop smoothing
  */
-function applyStereoReverbAndLoop(left, right, wet = 0.25, loopCrossfadeSec = 0.25) {
+function applyStereoReverbAndLoop(left, right, wet = 0.25, loopCrossfadeSec = 0.25, maxPeak = 0.34) {
   const n = left.length;
   const tapsL = [Math.floor(0.029 * SAMPLE_RATE), Math.floor(0.061 * SAMPLE_RATE), Math.floor(0.113 * SAMPLE_RATE)];
   const tapsR = [Math.floor(0.037 * SAMPLE_RATE), Math.floor(0.073 * SAMPLE_RATE), Math.floor(0.127 * SAMPLE_RATE)];
@@ -115,6 +115,19 @@ function applyStereoReverbAndLoop(left, right, wet = 0.25, loopCrossfadeSec = 0.
       left[tailIdx] = endL * alpha + startL * (1 - alpha) * 0.5;
       right[tailIdx] = endR * alpha + startR * (1 - alpha) * 0.5;
     }
+  }
+
+  let peak = 0;
+  for (let i = 0; i < n; i++) {
+    const aL = Math.abs(left[i]);
+    const aR = Math.abs(right[i]);
+    if (aL > peak) peak = aL;
+    if (aR > peak) peak = aR;
+  }
+  const scale = peak > 0.001 ? Math.min(maxPeak / peak, maxPeak) : maxPeak;
+  for (let i = 0; i < n; i++) {
+    left[i] *= scale;
+    right[i] *= scale;
   }
   return [left, right];
 }
@@ -486,7 +499,7 @@ function synthAmbienceLoop(mode) {
  * Synthesize a mono 16-bit PCM WAV buffer using a generator callback `fn(t, u, i, n)`
  * with a clean 3-tap room reflection tail so every SFX has natural body.
  */
-function synthMonoSfx(durSec, generatorFn, roomMix = 0.14, masterGain = 0.48) {
+function synthMonoSfx(durSec, generatorFn, roomMix = 0.08, masterGain = 0.28) {
   const n = Math.max(64, Math.floor(durSec * SAMPLE_RATE));
   const buf = new Float32Array(n);
   for (let i = 0; i < n; i++) {
@@ -515,7 +528,7 @@ function synthMonoSfx(durSec, generatorFn, roomMix = 0.14, masterGain = 0.48) {
 
 function synthWeaponSwing(size, isCrit) {
   // Acoustic bandpass-filtered air whoosh + porcelain/brass edge shimmer on crits
-  const dur = size === 0 ? 0.17 : size === 1 ? 0.22 : 0.28;
+  const dur = size === 0 ? 0.14 : size === 1 ? 0.18 : 0.22;
   const fStart = size === 0 ? 920 : size === 1 ? 640 : 420;
   const fEnd = size === 0 ? 280 : size === 1 ? 190 : 120;
   let bp = 0;
@@ -536,20 +549,20 @@ function synthWeaponSwing(size, isCrit) {
     bp += fCoeff * hp;
     lp += fCoeff * bp;
 
-    const critRing = isCrit ? Math.sin(critPhase) * Math.exp(-t * 16) * 0.22 : 0;
+    const critRing = isCrit ? Math.sin(critPhase) * Math.exp(-t * 20) * 0.18 : 0;
     return (bp * 0.72 + Math.sin(phase) * 0.16) * env + critRing;
-  }, 0.10, 0.42);
+  }, 0.06, 0.28);
 }
 
 function synthWeaponImpact(surface, isCrit) {
   // Surfaces: flesh, chain, plate, shield_metal, shield_wood, parry_metal, parry_wood, wood, stone, ethereal
-  const dur = isCrit ? 0.28 : 0.21;
+  const dur = isCrit ? 0.22 : 0.16;
   let lp = 0;
   let thumpPhase = 0;
   let ricPhase = 0;
   return synthMonoSfx(dur, (t) => {
-    const thumpEnv = Math.exp(-t * 28);
-    const bodyEnv = Math.exp(-t * 14);
+    const thumpEnv = Math.exp(-t * 32);
+    const bodyEnv = Math.exp(-t * 18);
     const thumpFreq = 128 * Math.exp(-t * 22) + 52;
     thumpPhase += (TWO_PI * thumpFreq) / SAMPLE_RATE;
     const thump = Math.sin(thumpPhase) * thumpEnv;
@@ -558,7 +571,7 @@ function synthWeaponImpact(surface, isCrit) {
     if (surface === 'flesh') {
       const crunch = lp * Math.exp(-t * 24) * 0.50;
       const critBurst = isCrit
-        ? (Math.sin(TWO_PI * 587.33 * t) * 0.22 + Math.sin(TWO_PI * 880.0 * t) * 0.14) * Math.exp(-t * 15)
+        ? (Math.sin(TWO_PI * 587.33 * t) * 0.22 + Math.sin(TWO_PI * 880.0 * t) * 0.14) * Math.exp(-t * 18)
         : 0;
       return thump * 0.65 + crunch + critBurst;
     }
@@ -586,38 +599,38 @@ function synthWeaponImpact(surface, isCrit) {
     }
     // ethereal / absorb — Celandia porcelain glass harmonic
     return (Math.sin(TWO_PI * 587.33 * t) * 0.45 + Math.sin(TWO_PI * 880.0 * t) * 0.28) * bodyEnv;
-  }, 0.15, 0.44);
+  }, 0.08, 0.30);
 }
 
 function synthSheathe(type) {
   // metal_sheathe, metal_unsheathe, wood_sheathe, wood_unsheathe, shield
-  const dur = 0.24;
+  const dur = 0.20;
   let lp = 0;
   let slidePhase = 0;
   return synthMonoSfx(dur, (t, u) => {
-    const env = Math.min(1, t / 0.012) * Math.exp(-t * 11);
+    const env = Math.min(1, t / 0.012) * Math.exp(-t * 13);
     lp += 0.25 * (rand() - lp);
     if (type.includes('metal')) {
       const fSlide = type.includes('unsheathe') ? 780 + u * 620 : 1280 - u * 520;
       slidePhase += (TWO_PI * fSlide) / SAMPLE_RATE;
-      const ring = (Math.sin(slidePhase) * 0.35 + Math.sin(TWO_PI * 1760 * t) * 0.18 * Math.exp(-t * 16)) * env;
+      const ring = (Math.sin(slidePhase) * 0.35 + Math.sin(TWO_PI * 1760 * t) * 0.18 * Math.exp(-t * 18)) * env;
       return ring + lp * env * 0.32;
     }
     const fWood = type.includes('unsheathe') ? 280 + u * 120 : 390 - u * 110;
     slidePhase += (TWO_PI * fWood) / SAMPLE_RATE;
     return Math.sin(slidePhase) * env * 0.45 + lp * env * 0.38;
-  }, 0.12, 0.40);
+  }, 0.08, 0.26);
 }
 
 function synthFootstep(terrain) {
   // dirt, metallic, stone, snow, wood, grass, leaves, sand, soggy, splash
-  const dur = terrain === 'splash' ? 0.26 : 0.12;
+  const dur = terrain === 'splash' ? 0.22 : 0.10;
   let lp = 0;
   let bubblePhase = 0;
   return synthMonoSfx(dur, (t) => {
-    const env = Math.exp(-t * (terrain === 'splash' ? 14 : 30));
+    const env = Math.exp(-t * (terrain === 'splash' ? 16 : 34));
     lp += (terrain === 'snow' || terrain === 'leaves' ? 0.38 : 0.20) * (rand() - lp);
-    const heel = Math.sin(TWO_PI * (terrain === 'wood' ? 145 : terrain === 'stone' ? 185 : 105) * t) * Math.exp(-t * 42);
+    const heel = Math.sin(TWO_PI * (terrain === 'wood' ? 145 : terrain === 'stone' ? 185 : 105) * t) * Math.exp(-t * 44);
     if (terrain === 'metallic') {
       return heel * 0.50 + (Math.sin(TWO_PI * 660 * t) * 0.25 + Math.sin(TWO_PI * 990 * t) * 0.12) * env;
     }
@@ -627,18 +640,18 @@ function synthFootstep(terrain) {
       return lp * env * 0.52 + Math.sin(bubblePhase) * env * 0.28;
     }
     return heel * 0.55 + lp * env * 0.48;
-  }, 0.08, 0.36);
+  }, 0.05, 0.24);
 }
 
 function synthDeathThud(sizeClass, isWater) {
   // sizeClass: 0=Small, 1=Medium, 2=Large, 3=Giant, 4=Colossal
-  const dur = 0.24 + sizeClass * 0.06;
+  const dur = 0.20 + sizeClass * 0.05;
   const baseFreq = Math.max(42, 118 - sizeClass * 16);
   let lp = 0;
   let dropPhase = 0;
   let bubblePhase = 0;
   return synthMonoSfx(dur, (t) => {
-    const env = Math.exp(-t * (15 - sizeClass * 1.6));
+    const env = Math.exp(-t * (17 - sizeClass * 1.6));
     lp += (isWater ? 0.30 : 0.14) * (rand() - lp);
     const dFreq = baseFreq * Math.exp(-t * 9) + 36;
     dropPhase += (TWO_PI * dFreq) / SAMPLE_RATE;
@@ -649,7 +662,7 @@ function synthDeathThud(sizeClass, isWater) {
       waterBubble = Math.sin(bubblePhase) * env * 0.28;
     }
     return drop * 0.68 + lp * env * 0.38 + waterBubble;
-  }, 0.16, 0.44);
+  }, 0.10, 0.28);
 }
 
 function synthSpellSound(spellType) {
@@ -657,13 +670,13 @@ function synthSpellSound(spellType) {
   // Zero phase discontinuities: multi-note arpeggios sum independent note envelopes, and
   // pitch sweeps integrate phase continuously.
   const isImpact = spellType.includes('Impact') || spellType.includes('Shatter');
-  const dur = isImpact ? 0.42 : 0.54;
+  const dur = isImpact ? 0.22 : 0.28;
   let lp = 0;
   let sweepPhase = 0;
   let subPhase = 0;
 
   // Helper to evaluate a plucked/struck Celandia bell/chime partial at note start `t0`
-  const bellNote = (t, t0, freq, decay = 7.5) => {
+  const bellNote = (t, t0, freq, decay = 12.0) => {
     const dt = t - t0;
     if (dt < 0) return 0;
     const env = Math.min(1, dt / 0.005) * Math.exp(-dt * decay);
@@ -676,78 +689,78 @@ function synthSpellSound(spellType) {
   };
 
   return synthMonoSfx(dur, (t) => {
-    const env = Math.min(1, t / 0.012) * Math.exp(-t * 5.8);
+    const env = Math.min(1, t / 0.010) * Math.exp(-t * 11.0);
     lp += 0.18 * (rand() - lp);
 
     switch (spellType) {
       case 'porcelainCast': {
         // Porcelain Wake celesta arpeggio (D5 -> F#5 -> A5 -> D6)
         return (
-          bellNote(t, 0.00, 587.33, 7.0) * 0.45 +
-          bellNote(t, 0.05, 739.99, 7.5) * 0.40 +
-          bellNote(t, 0.10, 880.00, 8.0) * 0.38 +
-          bellNote(t, 0.15, 1174.66, 8.5) * 0.35
+          bellNote(t, 0.00, 587.33, 12.0) * 0.45 +
+          bellNote(t, 0.03, 739.99, 13.0) * 0.40 +
+          bellNote(t, 0.06, 880.00, 14.0) * 0.38 +
+          bellNote(t, 0.09, 1174.66, 15.0) * 0.35
         );
       }
       case 'porcelainShatter': {
         // Crisp porcelain chord + soft rose-gold shimmer
         return (
-          bellNote(t, 0.00, 880.00, 10.0) * 0.42 +
-          bellNote(t, 0.01, 1318.51, 11.0) * 0.32 +
-          bellNote(t, 0.02, 1760.00, 12.5) * 0.22 +
-          lp * Math.exp(-t * 18.0) * 0.25
+          bellNote(t, 0.00, 880.00, 15.0) * 0.42 +
+          bellNote(t, 0.01, 1318.51, 16.0) * 0.32 +
+          bellNote(t, 0.02, 1760.00, 18.0) * 0.22 +
+          lp * Math.exp(-t * 22.0) * 0.25
         );
       }
       case 'frostbellCast': {
         // Frostbell Lagoon shimmering tubular bell triad (E5 + B5 + F#6)
-        const mod = Math.sin(TWO_PI * 1318.51 * t) * 0.65 * Math.exp(-t * 8.0);
+        const mod = Math.sin(TWO_PI * 1318.51 * t) * 0.55 * Math.exp(-t * 13.0);
         return (
           Math.sin(TWO_PI * 659.25 * t + mod) * 0.48 +
-          bellNote(t, 0.04, 987.77, 6.5) * 0.35 +
-          bellNote(t, 0.09, 1479.98, 7.5) * 0.25
+          bellNote(t, 0.03, 987.77, 12.0) * 0.35 +
+          bellNote(t, 0.06, 1479.98, 13.5) * 0.25
         ) * env;
       }
       case 'frostbellImpact': {
         // Smoothly integrated frost crystallization chime + gentle low thump
-        const fSweep = 320 + 640 * Math.exp(-t * 11.0);
+        const fSweep = 320 + 640 * Math.exp(-t * 14.0);
         sweepPhase += (TWO_PI * fSweep) / SAMPLE_RATE;
         return (
-          Math.sin(sweepPhase) * 0.42 * Math.exp(-t * 9.5) +
-          bellNote(t, 0.00, 987.77, 10.0) * 0.38 +
-          lp * Math.exp(-t * 16.0) * 0.24
+          Math.sin(sweepPhase) * 0.42 * Math.exp(-t * 13.0) +
+          bellNote(t, 0.00, 987.77, 15.0) * 0.38 +
+          lp * Math.exp(-t * 18.0) * 0.24
         );
       }
       case 'aureateCast': {
         // Aureate Reach warm brass & sun-harp fifth (D4 + A4 + F#5)
         return (
-          bellNote(t, 0.00, 293.66, 5.5) * 0.45 +
-          bellNote(t, 0.04, 440.00, 6.0) * 0.40 +
-          bellNote(t, 0.08, 739.99, 6.5) * 0.35
+          bellNote(t, 0.00, 293.66, 10.5) * 0.45 +
+          bellNote(t, 0.03, 440.00, 11.5) * 0.40 +
+          bellNote(t, 0.06, 739.99, 12.5) * 0.35
         );
       }
       case 'aureateImpact': {
         // Radiant solar gong strike (G3 + D4 + B4)
         return (
-          bellNote(t, 0.00, 196.00, 6.0) * 0.50 +
-          bellNote(t, 0.00, 293.66, 7.0) * 0.35 +
-          bellNote(t, 0.01, 493.88, 8.0) * 0.25
+          bellNote(t, 0.00, 196.00, 11.0) * 0.50 +
+          bellNote(t, 0.00, 293.66, 12.5) * 0.35 +
+          bellNote(t, 0.01, 493.88, 14.0) * 0.25
         );
       }
       case 'bambooCast': {
         // Glasswake Mesas breathy flute + wooden marimba double-stop (integrated phase)
         const fFlute = 523.25 * (1.0 + 0.012 * Math.sin(TWO_PI * 5.5 * t));
         sweepPhase += (TWO_PI * fFlute) / SAMPLE_RATE;
-        const marimba = bellNote(t, 0.00, 392.00, 11.0) * 0.45 + bellNote(t, 0.06, 587.33, 11.0) * 0.40;
+        const marimba = bellNote(t, 0.00, 392.00, 14.0) * 0.45 + bellNote(t, 0.04, 587.33, 15.0) * 0.40;
         return Math.sin(sweepPhase) * 0.38 * env + marimba + lp * env * 0.14;
       }
       case 'bambooImpact': {
         // Warm wooden marimba resonator strike (integrated phase)
-        const fWood = 180 + 210 * Math.exp(-t * 14.0);
+        const fWood = 180 + 210 * Math.exp(-t * 16.0);
         sweepPhase += (TWO_PI * fWood) / SAMPLE_RATE;
         return (
-          Math.sin(sweepPhase) * 0.55 * Math.exp(-t * 12.0) +
-          bellNote(t, 0.00, 587.33, 14.0) * 0.32 +
-          lp * Math.exp(-t * 20.0) * 0.22
+          Math.sin(sweepPhase) * 0.55 * Math.exp(-t * 15.0) +
+          bellNote(t, 0.00, 587.33, 17.0) * 0.32 +
+          lp * Math.exp(-t * 22.0) * 0.22
         );
       }
       case 'shadowCast': {
@@ -757,17 +770,17 @@ function synthSpellSound(spellType) {
         subPhase += (TWO_PI * 146.83) / SAMPLE_RATE;
         return (
           (Math.sin(subPhase) * 0.40 + Math.sin(sweepPhase) * 0.35) * env +
-          bellNote(t, 0.05, 659.25, 7.5) * 0.28
+          bellNote(t, 0.03, 659.25, 13.0) * 0.28
         );
       }
       case 'shadowImpact': {
         // Smooth velvet void pulse + twilight chime (integrated phase)
-        const fPulse = 78 + 180 * Math.exp(-t * 10.0);
+        const fPulse = 78 + 180 * Math.exp(-t * 13.0);
         sweepPhase += (TWO_PI * fPulse) / SAMPLE_RATE;
         return (
-          Math.sin(sweepPhase) * 0.55 * Math.exp(-t * 8.5) +
-          bellNote(t, 0.00, 440.00, 9.5) * 0.30 +
-          lp * Math.exp(-t * 15.0) * 0.20
+          Math.sin(sweepPhase) * 0.55 * Math.exp(-t * 12.0) +
+          bellNote(t, 0.00, 440.00, 14.0) * 0.30 +
+          lp * Math.exp(-t * 18.0) * 0.20
         );
       }
       case 'healCast':
@@ -775,34 +788,34 @@ function synthSpellSound(spellType) {
       default: {
         // Elsewhere Tide luminous chord (D5 + F#5 + A5 + E6)
         return (
-          bellNote(t, 0.00, 587.33, 6.0) * 0.35 +
-          bellNote(t, 0.03, 739.99, 6.5) * 0.30 +
-          bellNote(t, 0.06, 880.00, 7.0) * 0.25 +
-          bellNote(t, 0.09, 1318.51, 7.5) * 0.20
+          bellNote(t, 0.00, 587.33, 11.0) * 0.35 +
+          bellNote(t, 0.02, 739.99, 12.0) * 0.30 +
+          bellNote(t, 0.04, 880.00, 13.0) * 0.25 +
+          bellNote(t, 0.06, 1318.51, 14.0) * 0.20
         );
       }
     }
-  }, 0.20, 0.42);
+  }, 0.10, 0.26);
 }
 
 function synthCreatureVoice(archetype, action) {
   // Ported directly from Celandia's `docs/elsewhere-tide/ui/world/soundscape.js` creature calls:
   // Soft, musical, organic Celandia fauna voices instead of harsh synthetic buzzers.
   const isLong = action === 'death' || action === 'aggro' || action === 'greeting';
-  const dur = isLong ? 0.38 : 0.22;
+  const dur = isLong ? 0.24 : 0.14;
   let phase = 0;
   let phase2 = 0;
   let lp = 0;
 
   return synthMonoSfx(dur, (t, u) => {
-    const env = Math.min(1, t / 0.018) * Math.exp(-t * (isLong ? 5.8 : 10.5));
+    const env = Math.min(1, t / 0.014) * Math.exp(-t * (isLong ? 10.5 : 16.0));
     lp += 0.16 * (rand() - lp);
 
     if (archetype === 'hound') {
       // Porcelain Hopper (`hopper-chirp` / `hopper-squeak`): gentle bird-like porcelain whistle
       const f = action === 'death'
         ? 580 * (1 - u * 0.35)
-        : (t < 0.09 ? 523.25 : 659.25) * (1 + 0.03 * Math.sin(TWO_PI * 12 * t));
+        : (t < 0.06 ? 523.25 : 659.25) * (1 + 0.03 * Math.sin(TWO_PI * 12 * t));
       phase += (TWO_PI * f) / SAMPLE_RATE;
       return (Math.sin(phase) * 0.65 + Math.sin(phase * 2) * 0.18) * env;
     }
@@ -816,7 +829,7 @@ function synthCreatureVoice(archetype, action) {
       // Glass Skimmer (`skimmer-click`): delicate glass-reed marimba pluck
       const f = action === 'death' ? 440 * (1 - u * 0.3) : 659.25;
       phase += (TWO_PI * f) / SAMPLE_RATE;
-      return (Math.sin(phase) * 0.68 + Math.sin(phase * 3.0) * 0.22 * Math.exp(-t * 24)) * Math.exp(-t * 14);
+      return (Math.sin(phase) * 0.68 + Math.sin(phase * 3.0) * 0.22 * Math.exp(-t * 28)) * Math.exp(-t * 18);
     }
     if (archetype === 'griffin') {
       // Sky Manta (`manta-song`): ethereal ocarina/whale harmonic glide
@@ -843,7 +856,7 @@ function synthCreatureVoice(archetype, action) {
     const f = baseF * (action === 'death' ? 1 - u * 0.22 : 1.0 + 0.04 * Math.sin(Math.PI * u));
     phase += (TWO_PI * f) / SAMPLE_RATE;
     return (Math.sin(phase) * 0.58 + Math.sin(phase * 2) * 0.22 + lp * 0.14) * env;
-  }, 0.16, 0.36);
+  }, 0.08, 0.22);
 }
 
 function synthUiSound(kind) {
@@ -1067,16 +1080,7 @@ export function buildCelandiaAudio(writeFile, WdbcBuilder, f32) {
   const creatureActions = ['Attack', 'Wound', 'WoundCrit', 'Death', 'Aggro', 'Fidget', 'Greeting', 'Farewell', 'Pissed'];
   for (const [prefix, arch] of creatureArchetypes) {
     for (const act of creatureActions) {
-      let buf = null;
-      if (prefix === 'HeroF' && act === 'Greeting' && realVoiceBufs['samantha.wav']) {
-        buf = realVoiceBufs['samantha.wav'];
-      } else if (prefix === 'HeroF' && act === 'Farewell' && realVoiceBufs['invented-1.wav']) {
-        buf = realVoiceBufs['invented-1.wav'];
-      } else if (prefix === 'HeroM' && act === 'Greeting' && realVoiceBufs['invented-2.wav']) {
-        buf = realVoiceBufs['invented-2.wav'];
-      } else {
-        buf = synthCreatureVoice(arch, act.toLowerCase());
-      }
+      const buf = synthCreatureVoice(arch, act.toLowerCase());
       writeAudio(`Sound/Creature/Celandia/${prefix}_${act}.wav`, buf);
     }
   }
@@ -1126,23 +1130,23 @@ export function buildCelandiaAudio(writeFile, WdbcBuilder, f32) {
   }
 
   // 1. Zone Music kits (SoundType = 28)
-  addSoundEntry(6001, 28, 'Zone-PorcelainWakeDay', 'Sound\\Music\\Celandia', 'PorcelainWakeDay.wav', 0.68);
-  addSoundEntry(6002, 28, 'Zone-FrostbellLagoonDay', 'Sound\\Music\\Celandia', 'FrostbellLagoonDay.wav', 0.68);
-  addSoundEntry(6003, 28, 'Zone-GlasswakeMesasDay', 'Sound\\Music\\Celandia', 'GlasswakeMesasDay.wav', 0.68);
-  addSoundEntry(6004, 28, 'Zone-AureateReachDay', 'Sound\\Music\\Celandia', 'AureateReachDay.wav', 0.68);
-  addSoundEntry(6005, 28, 'Zone-NocturnumIsleNight', 'Sound\\Music\\Celandia', 'NocturnumIsleNight.wav', 0.68);
-  addSoundEntry(6006, 28, 'Zone-CelandiaTitleTheme', 'Sound\\Music\\Celandia', 'CelandiaTitleTheme.wav', 0.72);
-  addSoundEntry(2523, 28, 'Zone-DayForest', 'Sound\\Music\\Celandia', 'PorcelainWakeDay.wav', 0.68);
+  addSoundEntry(6001, 28, 'Zone-PorcelainWakeDay', 'Sound\\Music\\Celandia', 'PorcelainWakeDay.wav', 0.42);
+  addSoundEntry(6002, 28, 'Zone-FrostbellLagoonDay', 'Sound\\Music\\Celandia', 'FrostbellLagoonDay.wav', 0.42);
+  addSoundEntry(6003, 28, 'Zone-GlasswakeMesasDay', 'Sound\\Music\\Celandia', 'GlasswakeMesasDay.wav', 0.42);
+  addSoundEntry(6004, 28, 'Zone-AureateReachDay', 'Sound\\Music\\Celandia', 'AureateReachDay.wav', 0.42);
+  addSoundEntry(6005, 28, 'Zone-NocturnumIsleNight', 'Sound\\Music\\Celandia', 'NocturnumIsleNight.wav', 0.42);
+  addSoundEntry(6006, 28, 'Zone-CelandiaTitleTheme', 'Sound\\Music\\Celandia', 'CelandiaTitleTheme.wav', 0.46);
+  addSoundEntry(2523, 28, 'Zone-DayForest', 'Sound\\Music\\Celandia', 'PorcelainWakeDay.wav', 0.42);
 
   // 2. Zone Ambience & Forced Bed kits (SoundType = 14)
-  addSoundEntry(6101, 14, 'Ambience-PorcelainWake', 'Sound\\Ambience\\Celandia', 'PorcelainWakeAmbience.wav', 0.50);
-  addSoundEntry(6102, 14, 'Ambience-FrostbellLagoon', 'Sound\\Ambience\\Celandia', 'FrostbellLagoonAmbience.wav', 0.50);
-  addSoundEntry(6103, 14, 'Ambience-GlasswakeMesas', 'Sound\\Ambience\\Celandia', 'GlasswakeMesasAmbience.wav', 0.50);
-  addSoundEntry(6104, 14, 'Ambience-AureateReach', 'Sound\\Ambience\\Celandia', 'AureateReachAmbience.wav', 0.50);
-  addSoundEntry(6105, 14, 'Ambience-NocturnumIsle', 'Sound\\Ambience\\Celandia', 'NocturnumIsleAmbience.wav', 0.50);
-  addSoundEntry(4160, 14, 'Ghost (DONOTRENAME)', 'Sound\\Ambience\\Celandia', 'GhostState.wav', 0.55);
-  addSoundEntry(4209, 14, 'Underwater (DONOTRENAME)', 'Sound\\Ambience\\Water', 'UndwaterLoop.wav', 0.55);
-  addSoundEntry(4123, 14, 'UnderWaterLoop', 'Sound\\Ambience\\Water', 'UndwaterLoop.wav', 0.55);
+  addSoundEntry(6101, 14, 'Ambience-PorcelainWake', 'Sound\\Ambience\\Celandia', 'PorcelainWakeAmbience.wav', 0.28);
+  addSoundEntry(6102, 14, 'Ambience-FrostbellLagoon', 'Sound\\Ambience\\Celandia', 'FrostbellLagoonAmbience.wav', 0.28);
+  addSoundEntry(6103, 14, 'Ambience-GlasswakeMesas', 'Sound\\Ambience\\Celandia', 'GlasswakeMesasAmbience.wav', 0.28);
+  addSoundEntry(6104, 14, 'Ambience-AureateReach', 'Sound\\Ambience\\Celandia', 'AureateReachAmbience.wav', 0.28);
+  addSoundEntry(6105, 14, 'Ambience-NocturnumIsle', 'Sound\\Ambience\\Celandia', 'NocturnumIsleAmbience.wav', 0.28);
+  addSoundEntry(4160, 14, 'Ghost (DONOTRENAME)', 'Sound\\Ambience\\Celandia', 'GhostState.wav', 0.35);
+  addSoundEntry(4209, 14, 'Underwater (DONOTRENAME)', 'Sound\\Ambience\\Water', 'UndwaterLoop.wav', 0.35);
+  addSoundEntry(4123, 14, 'UnderWaterLoop', 'Sound\\Ambience\\Water', 'UndwaterLoop.wav', 0.35);
 
   // 3. Water / Liquid Loops & Splash (SoundWaterType.dbc + water.rs)
   addSoundEntry(1096, 1, 'CharacterSplashSoundMedium', 'Sound\\Character\\Footsteps', 'FootstepSplash.wav', 0.65);
@@ -1224,21 +1228,21 @@ export function buildCelandiaAudio(writeFile, WdbcBuilder, f32) {
   // 8. Spell Sound Kits (`spell.rs`, `SpellVisualKit.dbc`, `mount.rs`)
   // Register both 5001..5015 AND 6201..6215 (referenced by SpellVisualKit.dbc!)
   const spellKitPairs = [
-    [5001, 6201, 'Celandia_PorcelainLanceCast', 'PorcelainLanceCast.wav', 0.62],
-    [5002, 6202, 'Celandia_PorcelainShatterImpact', 'PorcelainShatterImpact.wav', 0.65],
-    [5003, 6203, 'Celandia_FrostbellChimeCast', 'FrostbellChimeCast.wav', 0.62],
-    [5004, 6204, 'Celandia_FrostbellFreezeImpact', 'FrostbellFreezeImpact.wav', 0.65],
-    [5005, 6205, 'Celandia_BambooWhirlCast', 'BambooWhirlCast.wav', 0.62],
-    [5006, 6206, 'Celandia_BambooStrikeImpact', 'BambooStrikeImpact.wav', 0.65],
-    [5007, 6207, 'Celandia_AureateHornCast', 'AureateHornCast.wav', 0.62],
-    [5008, 6208, 'Celandia_AureateSmiteImpact', 'AureateSmiteImpact.wav', 0.65],
-    [5009, 6209, 'Celandia_ShadowCelloCast', 'ShadowCelloCast.wav', 0.62],
-    [5010, 6210, 'Celandia_ShadowPulseImpact', 'ShadowPulseImpact.wav', 0.65],
-    [5011, 6211, 'Celandia_HealChoirCast', 'HealChoirCast.wav', 0.62],
-    [5012, 6212, 'Celandia_HealSparkleImpact', 'HealSparkleImpact.wav', 0.65],
-    [5013, 6213, 'PrecastFrostLow', 'PrecastLow.wav', 0.56],
-    [5014, 6214, 'PrecastFrostMedium', 'PrecastMedium.wav', 0.58],
-    [5015, 6215, 'PrecastFrostHigh', 'PrecastHigh.wav', 0.60],
+    [5001, 6201, 'Celandia_PorcelainLanceCast', 'PorcelainLanceCast.wav', 0.42],
+    [5002, 6202, 'Celandia_PorcelainShatterImpact', 'PorcelainShatterImpact.wav', 0.44],
+    [5003, 6203, 'Celandia_FrostbellChimeCast', 'FrostbellChimeCast.wav', 0.42],
+    [5004, 6204, 'Celandia_FrostbellFreezeImpact', 'FrostbellFreezeImpact.wav', 0.44],
+    [5005, 6205, 'Celandia_BambooWhirlCast', 'BambooWhirlCast.wav', 0.42],
+    [5006, 6206, 'Celandia_BambooStrikeImpact', 'BambooStrikeImpact.wav', 0.44],
+    [5007, 6207, 'Celandia_AureateHornCast', 'AureateHornCast.wav', 0.42],
+    [5008, 6208, 'Celandia_AureateSmiteImpact', 'AureateSmiteImpact.wav', 0.44],
+    [5009, 6209, 'Celandia_ShadowCelloCast', 'ShadowCelloCast.wav', 0.42],
+    [5010, 6210, 'Celandia_ShadowPulseImpact', 'ShadowPulseImpact.wav', 0.44],
+    [5011, 6211, 'Celandia_HealChoirCast', 'HealChoirCast.wav', 0.42],
+    [5012, 6212, 'Celandia_HealSparkleImpact', 'HealSparkleImpact.wav', 0.44],
+    [5013, 6213, 'PrecastFrostLow', 'PrecastLow.wav', 0.36],
+    [5014, 6214, 'PrecastFrostMedium', 'PrecastMedium.wav', 0.38],
+    [5015, 6215, 'PrecastFrostHigh', 'PrecastHigh.wav', 0.40],
   ];
   for (const [id5k, id6k, name, wav, vol] of spellKitPairs) {
     addSoundEntry(id5k, 2, name, 'Sound\\Spells', wav, vol);
@@ -1346,7 +1350,7 @@ export function buildCelandiaAudio(writeFile, WdbcBuilder, f32) {
       const act = creatureActions[a];
       // Greeting/Farewell/Pissed use SoundType 17 (NPC vocal, EAXDef=0)
       const st = a >= 6 ? 17 : 10;
-      addSoundEntry(base + a, st, `Celandia_${prefix}_${act}`, 'Sound\\Creature\\Celandia', `${prefix}_${act}.wav`, 0.88, 0, 8.0, 45.0, 0);
+      addSoundEntry(base + a, st, `Celandia_${prefix}_${act}`, 'Sound\\Creature\\Celandia', `${prefix}_${act}.wav`, 0.42, 0, 8.0, 45.0, 0);
     }
     nextCreatureEntryId += 20;
   }
@@ -1627,8 +1631,9 @@ export function buildCelandiaAudio(writeFile, WdbcBuilder, f32) {
   // L. Build CreatureSoundData.dbc (30 cols), NPCSounds.dbc (5 cols), VocalUISounds.dbc (7 cols)
   // -------------------------------------------------------------------------
   const creatureSoundDbc = new WdbcBuilder(30, []);
-  function addCreatureSoundRow(id, prefix, footstepId = 1, fidgetDelayMin = 15, fidgetDelayMax = 30) {
+  function addCreatureSoundRow(id, prefix, footstepId = 1, fidgetDelayMin = 120, fidgetDelayMax = 240) {
     const base = archetypeBaseId[prefix];
+    const npcSoundId = prefix === 'HeroF' ? 1 : prefix === 'HeroM' ? 2 : 0;
     creatureSoundDbc.addRow([
       id,
       base + 0, // Exertion
@@ -1643,12 +1648,12 @@ export function buildCelandiaAudio(writeFile, WdbcBuilder, f32) {
       base + 4, // Aggro
       0,        // WingFlap
       0,        // WingGlide
-      base + 4, // Alert
-      base + 5, // Fidget0
+      0,        // Alert (disabled so idle creatures don't spam alert sounds)
+      0,        // Fidget0 (disabled so idle creatures don't spam fidget sounds)
       0, 0, 0, 0,
       1,        // CustomAttack0
       0, 0, 0,
-      base + 6, // NPCSoundID
+      npcSoundId, // NPCSoundID -> NPCSounds.dbc row (1 or 2)
       0,        // LoopSoundID
       1,        // CreatureImpactType
       0, 0,

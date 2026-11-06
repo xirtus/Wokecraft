@@ -382,10 +382,13 @@ pub(super) fn place_camera(
             rig.yaw -= motion.delta.x * ORBIT_RATE;
             rig.pitch = (rig.pitch + motion.delta.y * ORBIT_RATE).clamp(PITCH_MIN, PITCH_MAX);
         }
+        let indoors = world.indoors_at(focus) || world.interior().is_some();
+        let eff_dist = if indoors { rig.dist.min(8.5) } else { rig.dist };
+        let eff_pitch = if indoors { rig.pitch.min(0.68) } else { rig.pitch };
         let (sy, cy) = rig.yaw.sin_cos();
-        let (sp, cp) = rig.pitch.sin_cos();
+        let (sp, cp) = eff_pitch.sin_cos();
         let look = focus + Vec3::Y * 1.4;
-        let mut eye = look + Vec3::new(cp * sy, sp, cp * cy) * rig.dist;
+        let mut eye = look + Vec3::new(cp * sy, sp, cp * cy) * eff_dist;
         // Never under the ground: a low tilt on a slope would bury the lens.
         if let Some(h) = world.terrain_height_under(eye) {
             eye.y = eye.y.max(h + 0.6);

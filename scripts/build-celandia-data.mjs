@@ -1708,13 +1708,13 @@ function buildDbcs(wmoInfo) {
       13: 6200 + (k - 1) * 2 + 1, // SoundID -> Celandia spell cast entry
       15: -1, 16: -1, 17: -1, 18: -1,
     });
-    // 6..10: Impact Kits (with Impact SoundID 6202, 6204, 6206, 6208, 6210)
+    // 6..10: Impact Kits (SoundID = 0 so multi-hit AoE abilities play 1 cast sound instead of 15 overlapping impact sounds)
     svkDbc.addRow({
       0: k + 5,
       2: 9,  // CombatWound anim
       4: k,
       12: k,
-      13: 6200 + (k - 1) * 2 + 2, // SoundID -> Celandia spell impact entry
+      13: 0,
       15: -1, 16: -1, 17: -1, 18: -1,
     });
     // 11..15: Silent Visual Kits for precast / state / channel (SoundID = 0 so sounds don't double-trigger)

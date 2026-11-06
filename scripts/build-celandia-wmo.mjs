@@ -313,21 +313,21 @@ export const CELANDIA_BUILDINGS = [
     exteriorGroupName: 'Porcelain Colonnade & Terrace',
     interiorGroupName: 'The Porcelain Throne Room',
     elsewhereInteriorName: 'Sanctum of the Porcelain Wake',
-    // Zone 1 center in Celandia (Map 0)
-    wx: 0.0,
+    // Placed on the grand perimeter of the Porcelain Wake plaza facing [0, 0]
+    wx: -52.0,
     wy: 0.0,
     // Placement in Map 1 (The Elsewhere & Reincarnation Sanctum)
-    elsewhereWx: 0.0,
+    elsewhereWx: -52.0,
     elsewhereWy: 0.0,
     wallTex: 'Textures\\Celandia\\WmoPorcelainMarble.blp',
     trimTex: 'Textures\\Celandia\\WmoRoseGoldTrim.blp',
     floorTex: 'Textures\\Celandia\\WmoPorcelainMarble.blp',
-    wallColor: [248, 241, 232],
-    trimColor: [232, 184, 152],
-    floorColor: [242, 234, 224],
+    wallColor: [214, 198, 188],
+    trimColor: [208, 158, 126],
+    floorColor: [198, 184, 174],
     liquidColor: [110, 215, 235, 195], // BGRA formatting handled in MOMT
-    fogColor: [235, 224, 214],
-    lightColor: [255, 228, 192],
+    fogColor: [195, 182, 174],
+    lightColor: [232, 198, 168],
     centerpieceMdx: 'World\\Celandia\\Interiors\\PorcelainThrone.mdx',
     secondaryMdx: 'World\\Celandia\\Interiors\\PorcelainPillar.mdx',
   },
@@ -342,19 +342,19 @@ export const CELANDIA_BUILDINGS = [
     exteriorGroupName: 'Frostbell Ice-Glass Rotunda',
     interiorGroupName: 'Resonance Chime Gallery',
     elsewhereInteriorName: 'Sanctum of the Frostbell Choir',
-    wx: 430.0,
+    wx: 378.0,
     wy: 470.0,
     elsewhereWx: 110.0,
     elsewhereWy: 110.0,
     wallTex: 'Textures\\Celandia\\WmoFrostbellGlass.blp',
     trimTex: 'Textures\\Celandia\\WmoPorcelainMarble.blp',
     floorTex: 'Textures\\Celandia\\WmoFrostbellGlass.blp',
-    wallColor: [216, 238, 252],
-    trimColor: [170, 218, 248],
-    floorColor: [204, 232, 248],
+    wallColor: [182, 208, 228],
+    trimColor: [148, 194, 224],
+    floorColor: [168, 196, 218],
     liquidColor: [120, 225, 255, 200],
-    fogColor: [198, 230, 250],
-    lightColor: [190, 236, 255],
+    fogColor: [168, 198, 220],
+    lightColor: [168, 214, 238],
     centerpieceMdx: 'World\\Celandia\\Interiors\\FrostbellAstrolabe.mdx',
     secondaryMdx: 'World\\Celandia\\Interiors\\PorcelainPillar.mdx',
   },
@@ -369,19 +369,19 @@ export const CELANDIA_BUILDINGS = [
     exteriorGroupName: 'Glasswake Sandstone Cloister',
     interiorGroupName: 'Hall of Refracting Prisms',
     elsewhereInteriorName: 'Sanctum of the Glasswake Prism',
-    wx: -40.0,
+    wx: -92.0,
     wy: -480.0,
     elsewhereWx: -110.0,
     elsewhereWy: -110.0,
     wallTex: 'Textures\\Celandia\\WmoGlasswakeSandstone.blp',
     trimTex: 'Textures\\Celandia\\WmoFrostbellGlass.blp',
     floorTex: 'Textures\\Celandia\\WmoGlasswakeSandstone.blp',
-    wallColor: [236, 206, 166],
-    trimColor: [104, 224, 214],
-    floorColor: [224, 194, 152],
+    wallColor: [204, 174, 138],
+    trimColor: [92, 198, 190],
+    floorColor: [190, 162, 126],
     liquidColor: [72, 228, 212, 195],
-    fogColor: [215, 198, 168],
-    lightColor: [152, 246, 232],
+    fogColor: [188, 168, 142],
+    lightColor: [138, 220, 208],
     centerpieceMdx: 'World\\Celandia\\Interiors\\GlasswakePrismAltar.mdx',
     secondaryMdx: 'World\\Celandia\\Interiors\\AureateSunBrazier.mdx',
   },
@@ -396,19 +396,19 @@ export const CELANDIA_BUILDINGS = [
     exteriorGroupName: 'Gilded Travertine Portico',
     interiorGroupName: 'Sovereign Reliquary Chamber',
     elsewhereInteriorName: 'Sanctum of the Aureate Sun',
-    wx: 500.0,
+    wx: 448.0,
     wy: -330.0,
     elsewhereWx: 110.0,
     elsewhereWy: -110.0,
     wallTex: 'Textures\\Celandia\\WmoAureateGold.blp',
     trimTex: 'Textures\\Celandia\\WmoRoseGoldTrim.blp',
     floorTex: 'Textures\\Celandia\\WmoPorcelainMarble.blp',
-    wallColor: [248, 224, 158],
-    trimColor: [255, 206, 102],
-    floorColor: [244, 228, 186],
+    wallColor: [212, 186, 128],
+    trimColor: [224, 176, 88],
+    floorColor: [202, 184, 146],
     liquidColor: [110, 214, 245, 195],
-    fogColor: [244, 218, 156],
-    lightColor: [255, 222, 136],
+    fogColor: [204, 180, 128],
+    lightColor: [232, 196, 118],
     centerpieceMdx: 'World\\Celandia\\Interiors\\AureateSunBrazier.mdx',
     secondaryMdx: 'World\\Celandia\\Interiors\\PorcelainThrone.mdx',
   },
@@ -423,107 +423,123 @@ export const CELANDIA_BUILDINGS = [
     exteriorGroupName: 'Obsidian Rampart & Threshold',
     interiorGroupName: 'Throne of the Elsewhere Rift',
     elsewhereInteriorName: 'Heart of the Elsewhere Rift',
-    wx: -320.0,
+    wx: -372.0,
     wy: 360.0,
     elsewhereWx: -110.0,
     elsewhereWy: 110.0,
     wallTex: 'Textures\\Celandia\\WmoNocturnumObsidian.blp',
     trimTex: 'Textures\\Celandia\\WmoRoseGoldTrim.blp',
     floorTex: 'Textures\\Celandia\\WmoNocturnumObsidian.blp',
-    wallColor: [148, 128, 188],
-    trimColor: [216, 142, 244],
-    floorColor: [132, 114, 168],
+    wallColor: [138, 118, 176],
+    trimColor: [196, 128, 224],
+    floorColor: [122, 104, 158],
     liquidColor: [165, 110, 245, 205],
-    fogColor: [118, 92, 164],
-    lightColor: [218, 156, 255],
+    fogColor: [108, 86, 152],
+    lightColor: [198, 142, 235],
     centerpieceMdx: 'World\\Celandia\\Interiors\\NocturnumRiftGate.mdx',
     secondaryMdx: 'World\\Celandia\\Interiors\\PorcelainThrone.mdx',
   },
 ];
 
 // ============================================================================
-// 2. Architectural `.blp` Texture Generator (6 Custom 64x64 BLP2 Textures)
+// 2. Architectural `.blp` Texture Generator (6 Custom 128x128 BLP2 Textures)
 // ============================================================================
 
 function buildArchitecturalBlpTextures(writeFile, createBlp2) {
-  // 1. WmoPorcelainMarble.blp — warm ivory porcelain slabs with rose-gold veining & ashlar joints
+  // 1. WmoPorcelainMarble.blp — Coffered ivory-rose porcelain ashlar tiles with deep plum-bronze mortar & veining
   writeFile(
     'Textures/Celandia/WmoPorcelainMarble.blp',
-    createBlp2(64, 64, (x, y) => {
-      const mortar = x % 32 === 0 || y % 16 === 0;
-      const vein = Math.sin(x * 0.22 + Math.sin(y * 0.18) * 2.5) * 0.5 + 0.5;
-      const shimmer = Math.cos((x - y) * 0.15) * 4;
-      if (mortar) return [212, 186, 168, 255];
+    createBlp2(128, 128, (x, y) => {
+      const bx = x % 32;
+      const by = y % 32;
+      const mortar = bx < 2 || by < 2;
+      const bevel = bx === 2 || bx === 31 || by === 2 || by === 31;
+      const inlay = (bx >= 6 && bx <= 26 && (by === 6 || by === 26)) || (by >= 6 && by <= 26 && (bx === 6 || bx === 26));
+      const vein = Math.sin(x * 0.14 + Math.sin(y * 0.12) * 2.8) * 18;
+      const checker = (((x >> 5) + (y >> 5)) & 1) ? -14 : 8;
+      if (mortar) return [92, 72, 86, 255];
+      if (bevel) return [138, 114, 124, 255];
+      if (inlay) return [214, 162, 128, 255];
       return [
-        242 + vein * 10 + shimmer,
-        233 + vein * 8 + shimmer,
-        224 + vein * 6 + shimmer,
+        Math.max(90, Math.min(220, 186 + vein + checker)),
+        Math.max(80, Math.min(210, 170 + vein * 0.8 + checker)),
+        Math.max(85, Math.min(215, 178 + vein * 0.6 + checker)),
         255,
       ];
     }),
   );
 
-  // 2. WmoRoseGoldTrim.blp — brushed metallic rose-gold & filigree bands
+  // 2. WmoRoseGoldTrim.blp — Ornate antique brass & rose-gold architectural frieze with fluted reliefs
   writeFile(
     'Textures/Celandia/WmoRoseGoldTrim.blp',
-    createBlp2(64, 64, (x, y) => {
-      const band = y < 8 || y >= 56 || (y >= 28 && y < 36);
-      const flute = Math.sin(x * (Math.PI / 4)) * 16;
-      const spec = Math.cos(y * 0.2) * 10;
-      if (band) {
-        return [246 + spec, 204 + spec, 162 + spec * 0.5, 255];
-      }
-      return [226 + flute, 174 + flute * 0.8, 146 + flute * 0.6, 255];
+    createBlp2(128, 128, (x, y) => {
+      const darkGroove = y < 4 || y >= 124 || (y >= 60 && y < 68) || x % 16 < 2;
+      const highlightBand = (y >= 4 && y < 12) || (y >= 116 && y < 124);
+      const flute = Math.sin((x % 16) * (Math.PI / 16)) * 34;
+      const rosette = Math.hypot((x % 32) - 16, (y % 32) - 16) < 6;
+      if (darkGroove) return [78, 52, 62, 255];
+      if (highlightBand) return [228, 182, 136, 255];
+      if (rosette) return [236, 164, 188, 255];
+      return [168 + flute, 124 + flute * 0.8, 102 + flute * 0.6, 255];
     }),
   );
 
-  // 3. WmoFrostbellGlass.blp — crystalline cyan-silver resonance glass panels with silver mullions
+  // 3. WmoFrostbellGlass.blp — Stained cyan-silver resonance glass panels with dark pewter lead mullions
   writeFile(
     'Textures/Celandia/WmoFrostbellGlass.blp',
-    createBlp2(64, 64, (x, y) => {
-      const mullion = x % 16 === 0 || y % 16 === 0 || Math.abs((x % 16) - (y % 16)) === 0;
-      const facet = Math.sin(x * 0.35) * Math.cos(y * 0.35) * 18;
-      if (mullion) return [230, 244, 255, 255];
-      return [178 + facet, 224 + facet, 248 + facet * 0.5, 255];
+    createBlp2(128, 128, (x, y) => {
+      const gx = x % 32;
+      const gy = y % 32;
+      const mullion = gx < 3 || gy < 3 || Math.abs(gx - gy) < 2 || Math.abs(gx + gy - 32) < 2;
+      const facet = Math.sin(x * 0.22) * Math.cos(y * 0.22) * 28;
+      if (mullion) return [64, 82, 108, 255];
+      return [118 + facet, 176 + facet, 212 + facet * 0.7, 255];
     }),
   );
 
-  // 4. WmoGlasswakeSandstone.blp — warm desert sandstone blocks inlaid with turquoise glass veins
+  // 4. WmoGlasswakeSandstone.blp — Carved mesa sandstone courses inlaid with glowing turquoise glass channels
   writeFile(
     'Textures/Celandia/WmoGlasswakeSandstone.blp',
-    createBlp2(64, 64, (x, y) => {
-      const inlay = (y % 32 === 15 || y % 32 === 16) || (x % 32 === 0 && y % 16 < 12);
-      const grain = Math.sin(y * 0.4 + Math.cos(x * 0.25) * 1.8) * 12;
-      if (inlay) return [76, 226, 212, 255];
-      return [230 + grain, 196 + grain * 0.8, 152 + grain * 0.6, 255];
+    createBlp2(128, 128, (x, y) => {
+      const row = (y >> 4) & 1;
+      const bx = (x + row * 16) % 32;
+      const by = y % 16;
+      const mortar = bx < 2 || by < 2;
+      const inlay = by === 8 && bx > 4 && bx < 28;
+      const grain = Math.sin(y * 0.35 + Math.cos(x * 0.18) * 2.2) * 18;
+      if (mortar) return [96, 74, 58, 255];
+      if (inlay) return [68, 208, 196, 255];
+      return [184 + grain, 152 + grain * 0.8, 116 + grain * 0.6, 255];
     }),
   );
 
-  // 5. WmoAureateGold.blp — sun-forged gilded travertine & radiant solar reliefs
+  // 5. WmoAureateGold.blp — Sun-forged gilded travertine coffers & solar sunburst reliefs
   writeFile(
     'Textures/Celandia/WmoAureateGold.blp',
-    createBlp2(64, 64, (x, y) => {
-      const dx = x - 32;
-      const dy = y - 32;
-      const dist = Math.hypot(dx, dy);
-      const angle = Math.atan2(dy, dx);
-      const sunray = Math.cos(angle * 12) * 14 * Math.exp(-dist * 0.04);
-      const border = x < 4 || x >= 60 || y < 4 || y >= 60;
-      if (border) return [255, 224, 132, 255];
-      return [244 + sunray, 210 + sunray * 0.9, 128 + sunray * 0.5, 255];
+    createBlp2(128, 128, (x, y) => {
+      const cx = (x % 64) - 32;
+      const cy = (y % 64) - 32;
+      const dist = Math.hypot(cx, cy);
+      const angle = Math.atan2(cy, cx);
+      const sunray = Math.cos(angle * 12) * 24 * Math.exp(-dist * 0.04);
+      const border = x % 64 < 4 || x % 64 >= 60 || y % 64 < 4 || y % 64 >= 60;
+      if (border) return [112, 84, 46, 255];
+      return [196 + sunray, 162 + sunray * 0.9, 98 + sunray * 0.5, 255];
     }),
   );
 
-  // 6. WmoNocturnumObsidian.blp — polished volcanic obsidian with glowing amethyst-violet runes
+  // 6. WmoNocturnumObsidian.blp — Carved volcanic obsidian ashlar with glowing amethyst-violet runes
   writeFile(
     'Textures/Celandia/WmoNocturnumObsidian.blp',
-    createBlp2(64, 64, (x, y) => {
-      const rune =
-        (x % 32 === 16 && y % 16 > 3 && y % 16 < 13) ||
-        (y % 32 === 16 && x % 16 > 3 && x % 16 < 13);
-      const sheen = Math.sin((x + y) * 0.25) * 10;
-      if (rune) return [214, 132, 255, 255];
-      return [68 + sheen, 56 + sheen, 96 + sheen * 1.4, 255];
+    createBlp2(128, 128, (x, y) => {
+      const bx = x % 32;
+      const by = y % 32;
+      const mortar = bx < 2 || by < 2;
+      const rune = (bx === 16 && by > 6 && by < 26) || (by === 16 && bx > 6 && bx < 26);
+      const sheen = Math.sin((x + y) * 0.18) * 14;
+      if (mortar) return [38, 28, 56, 255];
+      if (rune) return [192, 112, 238, 255];
+      return [76 + sheen, 62 + sheen, 108 + sheen * 1.3, 255];
     }),
   );
 }
@@ -675,17 +691,26 @@ class WmoGroupMeshBuilder {
     this.matBuckets = new Map(); // materialId -> Array<{ i0, i1, i2, mopyFlags }>
   }
 
-  addVertex(x, y, z, nx, ny, nz, u, v, rgba = [245, 238, 228, 255]) {
+  addVertex(x, y, z, nx, ny, nz, u, v, rgba = [188, 176, 168, 0]) {
     const idx = this.positions.length;
     this.positions.push([x, y, z]);
     const len = Math.hypot(nx, ny, nz) || 1.0;
-    this.normals.push([nx / len, ny / len, nz / len]);
+    const unx = nx / len;
+    const uny = ny / len;
+    const unz = nz / len;
+    this.normals.push([unx, uny, unz]);
     this.uvs.push([u, v]);
+    // Bake subtle directional + vertical architectural shading into MOCV RGB, and set MOCV alpha = 0
+    // because in 1.12 WMO shaders, MOCV.a is the 4x self-illumination overbright multiplier:
+    // `rgb = tex_rgb * vc.rgb * (1.0 + 4.0 * vc.a)`!
+    const heightShade = Math.max(0.76, Math.min(1.06, 0.82 + z * 0.015));
+    const dirShade = 0.88 + 0.12 * (unx * 0.4 + uny * 0.25 + unz * 0.85);
+    const s = heightShade * dirShade;
     this.colors.push([
-      Math.max(0, Math.min(255, rgba[2] | 0)), // B
-      Math.max(0, Math.min(255, rgba[1] | 0)), // G
-      Math.max(0, Math.min(255, rgba[0] | 0)), // R
-      Math.max(0, Math.min(255, (rgba[3] ?? 255) | 0)), // A
+      Math.max(0, Math.min(255, Math.round(rgba[2] * s))), // B
+      Math.max(0, Math.min(255, Math.round(rgba[1] * s))), // G
+      Math.max(0, Math.min(255, Math.round(rgba[0] * s))), // R
+      0, // A = 0 (prevents 5x white blowout on walls/floors/columns)
     ]);
     return idx;
   }
@@ -1362,10 +1387,10 @@ function buildSingleWmoBuilding(b) {
 
   // 5. MOLT (4 interior point lights x 48 bytes)
   const lights = [
-    { pos: [10.0, 0.0, 8.5], intensity: 1.35, attenStart: 4.0, attenEnd: 28.0 },
-    { pos: [0.0, 0.0, 9.5], intensity: 1.55, attenStart: 5.0, attenEnd: 32.0 },
-    { pos: [-11.5, 0.0, 7.5], intensity: 1.45, attenStart: 4.0, attenEnd: 28.0 },
-    { pos: [0.0, 0.0, 2.2], intensity: 1.15, attenStart: 3.0, attenEnd: 20.0 },
+    { pos: [10.0, 0.0, 8.5], intensity: 0.45, attenStart: 4.0, attenEnd: 28.0 },
+    { pos: [0.0, 0.0, 9.5], intensity: 0.55, attenStart: 5.0, attenEnd: 32.0 },
+    { pos: [-11.5, 0.0, 7.5], intensity: 0.50, attenStart: 4.0, attenEnd: 28.0 },
+    { pos: [0.0, 0.0, 2.2], intensity: 0.38, attenStart: 3.0, attenEnd: 20.0 },
   ];
   const moltBuf = Buffer.alloc(lights.length * 48, 0);
   lights.forEach((lt, i) => {
@@ -1502,9 +1527,9 @@ function buildSingleWmoBuilding(b) {
   mohdBuf.writeUInt32LE(doodadNames.length, 16); // nDoodadNames
   mohdBuf.writeUInt32LE(doodadDefs.length, 20); // nDoodadDefs
   mohdBuf.writeUInt32LE(1, 24); // nDoodadSets = 1
-  mohdBuf.writeUInt8(198, 28); // amb B
-  mohdBuf.writeUInt8(206, 29); // amb G
-  mohdBuf.writeUInt8(218, 30); // amb R
+  mohdBuf.writeUInt8(122, 28); // amb B
+  mohdBuf.writeUInt8(128, 29); // amb G
+  mohdBuf.writeUInt8(138, 30); // amb R
   mohdBuf.writeUInt8(255, 31); // amb A
   mohdBuf.writeUInt32LE(b.wmoId, 32); // wmoId at 0x20
   mohdBuf.writeFloatLE(rootMin[0], 36);
@@ -2130,7 +2155,7 @@ export async function buildCelandiaWmosAndElsewhere(ctx = {}) {
 
   // 5. Build Celandia (Map 0) WMO placement descriptors & encoded `MWMO`/`MWID`/`MODF` chunks
   const celandiaPlacements = CELANDIA_BUILDINGS.map((b, idx) => {
-    const wz = sampleCelandiaHeight(b.wx, b.wy);
+    const wz = sampleCelandiaHeight(b.wx, b.wy) + 0.85;
     return {
       key: b.key,
       wmoId: b.wmoId,
@@ -2160,7 +2185,7 @@ export async function buildCelandiaWmosAndElsewhere(ctx = {}) {
 
   // 6. Build & write Map 1 (`World/Maps/Elsewhere/Elsewhere.wdt` + `Elsewhere_30_30.adt`..`Elsewhere_33_33.adt`)
   const elsewherePlacements = CELANDIA_BUILDINGS.map((b, idx) => {
-    const wz = sampleElsewhereHeight(b.elsewhereWx, b.elsewhereWy);
+    const wz = sampleElsewhereHeight(b.elsewhereWx, b.elsewhereWy) + 0.85;
     return {
       key: b.key,
       wmoId: b.wmoId,
