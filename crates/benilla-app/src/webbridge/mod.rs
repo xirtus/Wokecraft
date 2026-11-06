@@ -206,9 +206,12 @@ fn unknown_command(name: &str, memo: &mut BridgeMemo, out: &mut BridgeOutbox) {
 /// commands are not in that walk).
 fn command_list(script: &UiScript) -> Vec<(String, String)> {
     const WALK: &str = "local t = {} for i = 1, GetNumBindings() do t[i] = (GetBinding(i)) end \
-                        return unpack(t)";
+                        return t";
     let rows = match script.eval_plain(WALK) {
-        Ok(rows) => rows,
+        Ok(mut top) => match top.pop() {
+            Some(PlainValue::List(rows)) => rows,
+            _ => Vec::new(),
+        },
         Err(e) => {
             warn!("webbridge: listing the binding commands: {e}");
             return Vec::new();
