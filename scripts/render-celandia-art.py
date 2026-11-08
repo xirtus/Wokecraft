@@ -795,14 +795,307 @@ def build_spell_and_weapon_icons():
         write_blp2(f"Interface/Icons/{name}.blp", img.resize((64, 64), Image.Resampling.LANCZOS))
 
 
+def _tileable_noise(size: int, freq: int, seed: int) -> np.ndarray:
+    """Generates a seamlessly tileable 2D multi-harmonic cosine/sine field in [0, 1]."""
+    rng = np.random.default_rng(seed)
+    yy, xx = np.mgrid[0:size, 0:size]
+    u = xx * (2.0 * math.pi / size)
+    v = yy * (2.0 * math.pi / size)
+    acc = np.zeros((size, size), dtype=np.float32)
+    total_w = 0.0
+    for h in range(1, freq + 1):
+        w = 1.0 / (h ** 0.85)
+        for _ in range(3):
+            fx = int(rng.integers(1, h + 2)) * (1 if rng.random() > 0.5 else -1)
+            fy = int(rng.integers(1, h + 2)) * (1 if rng.random() > 0.5 else -1)
+            phase = float(rng.random() * 2.0 * math.pi)
+            acc += w * np.cos(fx * u + fy * v + phase)
+            total_w += w
+    acc = (acc / max(1e-5, total_w)) * 0.5 + 0.5
+    return np.clip(acc, 0.0, 1.0)
+
+
+def build_terrain_tilesets_and_world_fx():
+    """
+    Generates:
+    1. 8 High-Resolution 256x256 Seamless Celandia Terrain Tilesets (`Tileset/Celandia/*.blp`)
+    2. Animated Water, River, Ocean, Lava & Slime Caustic Frames (`XTextures/...`) + Water Splash
+    3. Unit Selection Ring (`Textures/unitselecttexture.blp`), Ground Shadow Blob (`Textures/shadowblob.blp`),
+       Sky Sun & Moon Glare (`Textures/sunCenter.blp`, `sunGlare.blp`, `moon.blp`, `moon02.blp`, `moonglare.blp`),
+       and Footprints (`Textures/Footsteps/*Footprint.blp`).
+    """
+    S = 256
+    n_low = _tileable_noise(S, 3, 101)
+    n_mid = _tileable_noise(S, 7, 202)
+    n_hi = _tileable_noise(S, 14, 303)
+    rng = np.random.default_rng(777)
+    micro = rng.random((S, S), dtype=np.float32)
+
+    # 1. PorcelainGrass.blp — Lush emerald-celadon meadow grass with hand-painted blade strokes & clover
+    grass_arr = np.zeros((S, S, 4), dtype=np.float32)
+    grass_arr[:, :, 0] = 68.0 + n_low * 34.0 + n_mid * 24.0 + (n_hi - 0.5) * 22.0 + micro * 10.0
+    grass_arr[:, :, 1] = 118.0 + n_low * 42.0 + n_mid * 28.0 + (n_hi - 0.5) * 26.0 + micro * 12.0
+    grass_arr[:, :, 2] = 62.0 + n_low * 24.0 + n_mid * 18.0 + (n_hi - 0.5) * 16.0 + micro * 8.0
+    grass_arr[:, :, 3] = 255.0
+    grass_img = Image.fromarray(np.clip(grass_arr, 0, 255).astype(np.uint8), "RGBA")
+    gdraw = ImageDraw.Draw(grass_img)
+    for _ in range(420):
+        gx = int(rng.integers(0, S))
+        gy = int(rng.integers(0, S))
+        blade_col = (
+            int(rng.integers(85, 145)),
+            int(rng.integers(145, 205)),
+            int(rng.integers(75, 125)),
+            220,
+        )
+        for dx, dy in [(0, 0), (S, 0), (-S, 0), (0, S), (0, -S)]:
+            x0, y0 = gx + dx, gy + dy
+            if -16 <= x0 <= S + 16 and -16 <= y0 <= S + 16:
+                gdraw.line([(x0, y0 + 5), (x0 - 2, y0 - 4)], fill=blade_col, width=1)
+                gdraw.line([(x0, y0 + 5), (x0 + 2, y0 - 3)], fill=blade_col, width=1)
+    # Subtle porcelain-pink & white clover blossoms
+    for _ in range(55):
+        bx = int(rng.integers(4, S - 4))
+        by = int(rng.integers(4, S - 4))
+        pcol = PINK_BLOSSOM if rng.random() > 0.45 else PAPER_WARM
+        gdraw.ellipse([bx - 2, by - 2, bx + 2, by + 2], fill=(*pcol[:3], 215))
+    write_blp2("Tileset/Celandia/PorcelainGrass.blp", grass_img)
+
+    # 2. FrostbellSnow.blp — Sculpted crystalline snowdrifts with periwinkle-cyan ice facets
+    snow_arr = np.zeros((S, S, 4), dtype=np.float32)
+    drift = np.sin((np.mgrid[0:S, 0:S][0] / S) * 4.0 * math.pi + n_low * 3.0) * 0.5 + 0.5
+    snow_arr[:, :, 0] = 186.0 + drift * 42.0 + n_mid * 18.0 + micro * 8.0
+    snow_arr[:, :, 1] = 208.0 + drift * 34.0 + n_mid * 14.0 + micro * 6.0
+    snow_arr[:, :, 2] = 238.0 + drift * 14.0 + n_hi * 6.0
+    snow_arr[:, :, 3] = 255.0
+    snow_img = Image.fromarray(np.clip(snow_arr, 0, 255).astype(np.uint8), "RGBA")
+    sdraw = ImageDraw.Draw(snow_img)
+    for _ in range(120):
+        sx = int(rng.integers(2, S - 2))
+        sy = int(rng.integers(2, S - 2))
+        sdraw.point((sx, sy), fill=(255, 255, 255, 255))
+    write_blp2("Tileset/Celandia/FrostbellSnow.blp", snow_img)
+
+    # 3. GlasswakeSand.blp — Sun-baked terracotta & turquoise glass-sand ripples
+    sand_arr = np.zeros((S, S, 4), dtype=np.float32)
+    yy, xx = np.mgrid[0:S, 0:S]
+    ripple = np.sin((yy / S) * 12.0 * math.pi + n_low * 2.5 + (xx / S) * 4.0 * math.pi) * 0.5 + 0.5
+    turquoise_vein = np.clip((n_hi - 0.72) * 3.5, 0.0, 1.0)
+    sand_arr[:, :, 0] = (198.0 + ripple * 36.0 + n_mid * 14.0) * (1.0 - turquoise_vein * 0.5) + 92.0 * (turquoise_vein * 0.5)
+    sand_arr[:, :, 1] = (148.0 + ripple * 32.0 + n_mid * 14.0) * (1.0 - turquoise_vein * 0.5) + 218.0 * (turquoise_vein * 0.5)
+    sand_arr[:, :, 2] = (106.0 + ripple * 26.0 + n_mid * 12.0) * (1.0 - turquoise_vein * 0.5) + 212.0 * (turquoise_vein * 0.5)
+    sand_arr[:, :, 3] = 255.0
+    write_blp2("Tileset/Celandia/GlasswakeSand.blp", Image.fromarray(np.clip(sand_arr, 0, 255).astype(np.uint8), "RGBA"))
+
+    # 4. AureateTerrace.blp — Sunlit golden meadow grass & warm gilded travertine
+    aur_arr = np.zeros((S, S, 4), dtype=np.float32)
+    aur_arr[:, :, 0] = 176.0 + n_low * 44.0 + n_mid * 24.0 + micro * 10.0
+    aur_arr[:, :, 1] = 152.0 + n_low * 38.0 + n_mid * 22.0 + micro * 10.0
+    aur_arr[:, :, 2] = 74.0 + n_low * 28.0 + n_mid * 18.0 + micro * 8.0
+    aur_arr[:, :, 3] = 255.0
+    aur_img = Image.fromarray(np.clip(aur_arr, 0, 255).astype(np.uint8), "RGBA")
+    adraw = ImageDraw.Draw(aur_img)
+    for _ in range(280):
+        ax = int(rng.integers(0, S))
+        ay = int(rng.integers(0, S))
+        adraw.line([(ax, ay + 4), (ax + 1, ay - 3)], fill=(235, 202, 108, 210), width=1)
+    write_blp2("Tileset/Celandia/AureateTerrace.blp", aur_img)
+
+    # 5. NocturnumBasalt.blp — Deep twilight moss & fractured obsidian with glowing violet seams
+    noc_arr = np.zeros((S, S, 4), dtype=np.float32)
+    vein = np.clip(1.0 - np.abs(n_mid - 0.5) * 14.0, 0.0, 1.0)
+    noc_arr[:, :, 0] = 44.0 + n_low * 28.0 + n_hi * 18.0 + vein * 135.0
+    noc_arr[:, :, 1] = 34.0 + n_low * 26.0 + n_hi * 14.0 + vein * 55.0
+    noc_arr[:, :, 2] = 66.0 + n_low * 36.0 + n_hi * 24.0 + vein * 165.0
+    noc_arr[:, :, 3] = 255.0
+    write_blp2("Tileset/Celandia/NocturnumBasalt.blp", Image.fromarray(np.clip(noc_arr, 0, 255).astype(np.uint8), "RGBA"))
+
+    # 6. PorcelainRoad.blp — Ornate Celandia rose-marble & warm cobblestone paving stones
+    road_arr = np.zeros((S, S, 4), dtype=np.float32)
+    road_arr[:, :, 0] = 178.0 + n_low * 26.0 + n_mid * 18.0 + micro * 8.0
+    road_arr[:, :, 1] = 156.0 + n_low * 22.0 + n_mid * 16.0 + micro * 8.0
+    road_arr[:, :, 2] = 162.0 + n_low * 24.0 + n_mid * 16.0 + micro * 8.0
+    road_arr[:, :, 3] = 255.0
+    road_img = Image.fromarray(np.clip(road_arr, 0, 255).astype(np.uint8), "RGBA")
+    rdraw = ImageDraw.Draw(road_img)
+    # Draw staggered cobblestone courses with dark mortar & warm highlight bevels
+    rows = 8
+    row_h = S // rows
+    for r in range(rows):
+        y0 = r * row_h
+        y1 = y0 + row_h
+        cols = 6 if r % 2 == 0 else 7
+        offset_x = (r * 23) % S
+        for c in range(cols + 2):
+            x0 = int((c * S) / cols) - (offset_x % (S // cols))
+            x1 = int(((c + 1) * S) / cols) - (offset_x % (S // cols))
+            tint = int(rng.integers(-14, 16))
+            stone_fill = (
+                max(0, min(255, 204 + tint)),
+                max(0, min(255, 182 + tint)),
+                max(0, min(255, 186 + tint)),
+                255,
+            )
+            rdraw.rounded_rectangle([x0 + 2, y0 + 2, x1 - 2, y1 - 2], radius=6, fill=stone_fill, outline=(96, 78, 88, 255), width=2)
+            rdraw.line([(x0 + 5, y0 + 4), (x1 - 5, y0 + 4)], fill=(238, 222, 218, 200), width=1)
+    write_blp2("Tileset/Celandia/PorcelainRoad.blp", road_img)
+
+    # 7. CelandiaWildflowers.blp — Lush emerald meadow carpeted with rose, gold, and cyan-bell flowers
+    flw_img = grass_img.copy()
+    fdraw = ImageDraw.Draw(flw_img)
+    flower_palette = [
+        PINK_BLOSSOM,
+        GOLD_AUREATE,
+        CYAN_SEAFOAM,
+        PAPER_WARM,
+        LILAC_MIST,
+    ]
+    for _ in range(320):
+        fx = int(rng.integers(0, S))
+        fy = int(rng.integers(0, S))
+        fcol = flower_palette[int(rng.integers(0, len(flower_palette)))]
+        rad = int(rng.integers(2, 5))
+        for dx, dy in [(0, 0), (S, 0), (-S, 0), (0, S), (0, -S)]:
+            px, py = fx + dx, fy + dy
+            if -8 <= px <= S + 8 and -8 <= py <= S + 8:
+                fdraw.ellipse([px - rad, py - rad, px + rad, py + rad], fill=(*fcol[:3], 235), outline=(45, 78, 38, 200))
+                fdraw.point((px, py), fill=(255, 240, 150, 255))
+    write_blp2("Tileset/Celandia/CelandiaWildflowers.blp", flw_img)
+
+    # 8. CelandiaCliffRock.blp — Stratified cliff stone with mossy crevices
+    rock_arr = np.zeros((S, S, 4), dtype=np.float32)
+    strata = np.sin((yy / S) * 16.0 * math.pi + n_mid * 4.0) * 0.5 + 0.5
+    moss_mask = np.clip((n_low - 0.62) * 3.0, 0.0, 1.0)
+    rock_arr[:, :, 0] = (112.0 + strata * 38.0 + n_hi * 22.0) * (1.0 - moss_mask) + 74.0 * moss_mask
+    rock_arr[:, :, 1] = (106.0 + strata * 34.0 + n_hi * 20.0) * (1.0 - moss_mask) + 124.0 * moss_mask
+    rock_arr[:, :, 2] = (118.0 + strata * 36.0 + n_hi * 22.0) * (1.0 - moss_mask) + 68.0 * moss_mask
+    rock_arr[:, :, 3] = 255.0
+    write_blp2("Tileset/Celandia/CelandiaCliffRock.blp", Image.fromarray(np.clip(rock_arr, 0, 255).astype(np.uint8), "RGBA"))
+
+    # 9. Animated Water, River, Ocean, Lava & Slime Caustic Frames (`XTextures/...`)
+    WS = 128
+    w_yy, w_xx = np.mgrid[0:WS, 0:WS]
+    u_w = w_xx * (2.0 * math.pi / WS)
+    v_w = w_yy * (2.0 * math.pi / WS)
+    num_frames = 12
+    for frame in range(1, num_frames + 1):
+        phase = (frame - 1) * (2.0 * math.pi / num_frames)
+        c1 = np.cos(2.0 * u_w + 3.0 * v_w + phase) + np.sin(3.0 * u_w - 2.0 * v_w - phase * 1.0)
+        c2 = np.cos(5.0 * u_w - 4.0 * v_w + phase * 2.0) + np.sin(4.0 * u_w + 5.0 * v_w - phase)
+        caustic = np.clip((c1 * 0.25 + c2 * 0.25) * 0.5 + 0.5, 0.0, 1.0) ** 1.6
+
+        # Still Lake (`XTextures/river/lake_a.<n>.blp`)
+        lake = np.zeros((WS, WS, 4), dtype=np.uint8)
+        lake[:, :, 0] = np.clip(48.0 + caustic * 155.0, 0, 255).astype(np.uint8)
+        lake[:, :, 1] = np.clip(142.0 + caustic * 105.0, 0, 255).astype(np.uint8)
+        lake[:, :, 2] = np.clip(168.0 + caustic * 82.0, 0, 255).astype(np.uint8)
+        lake[:, :, 3] = np.clip(145.0 + caustic * 85.0, 0, 255).astype(np.uint8)
+        lake_img = Image.fromarray(lake, "RGBA")
+        write_blp2(f"XTextures/river/lake_a.{frame}.blp", lake_img)
+        write_blp2(f"XTextures/river/fast_a.{frame}.blp", lake_img)
+
+        # Ocean (`XTextures/ocean/ocean_h.<n>.blp`)
+        ocean = np.zeros((WS, WS, 4), dtype=np.uint8)
+        ocean[:, :, 0] = np.clip(32.0 + caustic * 165.0, 0, 255).astype(np.uint8)
+        ocean[:, :, 1] = np.clip(112.0 + caustic * 125.0, 0, 255).astype(np.uint8)
+        ocean[:, :, 2] = np.clip(154.0 + caustic * 95.0, 0, 255).astype(np.uint8)
+        ocean[:, :, 3] = np.clip(160.0 + caustic * 80.0, 0, 255).astype(np.uint8)
+        write_blp2(f"XTextures/ocean/ocean_h.{frame}.blp", Image.fromarray(ocean, "RGBA"))
+
+        if frame <= 8:
+            # Lava (`XTextures/lava/lava.<n>.blp`)
+            lava = np.zeros((WS, WS, 4), dtype=np.uint8)
+            lava[:, :, 0] = np.clip(140.0 + caustic * 115.0, 0, 255).astype(np.uint8)
+            lava[:, :, 1] = np.clip(42.0 + caustic * 145.0, 0, 255).astype(np.uint8)
+            lava[:, :, 2] = np.clip(68.0 + caustic * 90.0, 0, 255).astype(np.uint8)
+            lava[:, :, 3] = 255
+            write_blp2(f"XTextures/lava/lava.{frame}.blp", Image.fromarray(lava, "RGBA"))
+
+            # Slime (`XTextures/slime/slime.<n>.blp`)
+            slime = np.zeros((WS, WS, 4), dtype=np.uint8)
+            slime[:, :, 0] = np.clip(95.0 + caustic * 120.0, 0, 255).astype(np.uint8)
+            slime[:, :, 1] = np.clip(58.0 + caustic * 165.0, 0, 255).astype(np.uint8)
+            slime[:, :, 2] = np.clip(145.0 + caustic * 105.0, 0, 255).astype(np.uint8)
+            slime[:, :, 3] = 235
+            write_blp2(f"XTextures/slime/slime.{frame}.blp", Image.fromarray(slime, "RGBA"))
+
+    # Water foam / splash (`XTextures/splash/splash.blp`)
+    splash_img = Image.new("RGBA", (128, 128), (220, 248, 255, 0))
+    sp_draw = ImageDraw.Draw(splash_img)
+    sp_draw.ellipse([16, 16, 112, 112], fill=(230, 250, 255, 195), outline=(255, 255, 255, 240), width=4)
+    splash_img = splash_img.filter(ImageFilter.GaussianBlur(radius=3))
+    write_blp2("XTextures/splash/splash.blp", splash_img)
+
+    # 10. Unit Selection Ring (`Textures/unitselecttexture.blp`) & Shadow Blob (`Textures/shadowblob.blp`)
+    sel_img = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
+    sel_draw = ImageDraw.Draw(sel_img)
+    sel_draw.ellipse([8, 8, 120, 120], outline=(255, 255, 255, 110), width=8)
+    sel_draw.ellipse([12, 12, 116, 116], outline=(255, 255, 255, 245), width=4)
+    sel_draw.ellipse([20, 20, 108, 108], outline=(225, 248, 255, 175), width=2)
+    for i in range(8):
+        ang = i * (math.pi / 4.0)
+        x1 = 64 + math.cos(ang) * 44
+        y1 = 64 + math.sin(ang) * 44
+        x2 = 64 + math.cos(ang) * 58
+        y2 = 64 + math.sin(ang) * 58
+        sel_draw.line([(x1, y1), (x2, y2)], fill=(255, 255, 255, 255), width=3)
+    write_blp2("Textures/unitselecttexture.blp", sel_img)
+
+    # Soft contact shadow blob (`Textures/shadowblob.blp`)
+    sb_yy, sb_xx = np.mgrid[0:128, 0:128]
+    sb_r = np.sqrt(((sb_xx - 64.0) / 58.0) ** 2 + ((sb_yy - 64.0) / 58.0) ** 2)
+    sb_alpha = (np.clip(1.0 - sb_r, 0.0, 1.0) ** 1.8 * 195.0).astype(np.uint8)
+    sb_arr = np.zeros((128, 128, 4), dtype=np.uint8)
+    sb_arr[:, :, 0] = 14
+    sb_arr[:, :, 1] = 8
+    sb_arr[:, :, 2] = 22
+    sb_arr[:, :, 3] = sb_alpha
+    write_blp2("Textures/shadowblob.blp", Image.fromarray(sb_arr, "RGBA"))
+
+    # 11. Sky Sun & Moon Glare (`Textures/sunCenter.blp`, `sunGlare.blp`, `moon.blp`, `moon02.blp`, `moonglare.blp`)
+    sun_arr = np.zeros((128, 128, 4), dtype=np.uint8)
+    sun_glow = np.clip(1.0 - sb_r, 0.0, 1.0) ** 1.5
+    sun_arr[:, :, 0] = 255
+    sun_arr[:, :, 1] = np.clip(225.0 + sun_glow * 30.0, 0, 255).astype(np.uint8)
+    sun_arr[:, :, 2] = np.clip(165.0 + sun_glow * 90.0, 0, 255).astype(np.uint8)
+    sun_arr[:, :, 3] = np.clip(sun_glow * 255.0, 0, 255).astype(np.uint8)
+    sun_img = Image.fromarray(sun_arr, "RGBA")
+    write_blp2("Textures/sunCenter.blp", sun_img)
+    write_blp2("Textures/sunGlare.blp", sun_img)
+
+    moon_arr = np.zeros((128, 128, 4), dtype=np.uint8)
+    moon_disc = np.clip((0.75 - sb_r) * 8.0, 0.0, 1.0)
+    moon_glow = np.clip(1.0 - sb_r, 0.0, 1.0) ** 2.0
+    moon_arr[:, :, 0] = np.clip(215.0 + moon_disc * 35.0, 0, 255).astype(np.uint8)
+    moon_arr[:, :, 1] = np.clip(228.0 + moon_disc * 25.0, 0, 255).astype(np.uint8)
+    moon_arr[:, :, 2] = 255
+    moon_arr[:, :, 3] = np.clip(np.maximum(moon_disc * 245.0, moon_glow * 180.0), 0, 255).astype(np.uint8)
+    moon_img = Image.fromarray(moon_arr, "RGBA")
+    write_blp2("Textures/moon.blp", moon_img)
+    write_blp2("Textures/moon02.blp", moon_img)
+    write_blp2("Textures/moonglare.blp", moon_img)
+
+    # 12. Footprints (`Textures/Footsteps/*.blp`)
+    fp_img = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+    fp_draw = ImageDraw.Draw(fp_img)
+    fp_draw.ellipse([20, 8, 44, 38], fill=(30, 24, 42, 165))
+    fp_draw.ellipse([22, 42, 42, 58], fill=(30, 24, 42, 165))
+    fp_img = fp_img.filter(ImageFilter.GaussianBlur(radius=1.5))
+    for fp_name in ["BaseFootprint", "BootFootprint", "HoofFootprint", "ClawFootprint", "HeavyFootprint", "PawFootprint"]:
+        write_blp2(f"Textures/Footsteps/{fp_name}.blp", fp_img)
+        write_blp2(f"textures/Footsteps/{fp_name}.blp", fp_img)
+
+
 def main():
     build_logo_textures()
     build_character_sheets()
     build_ui_chrome_and_buttons()
     build_loading_screens_and_arena_cards()
     build_spell_and_weapon_icons()
+    build_terrain_tilesets_and_world_fx()
     print("[render-celandia-art] Rendered high-craft Celandia BLP2 textures from generative paintings & Geist/Bricolage fonts.")
 
 
 if __name__ == "__main__":
     main()
+

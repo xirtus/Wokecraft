@@ -848,52 +848,228 @@ function buildModels() {
   ], 'static');
   writeFile('Item/ObjectComponents/Shield/PorcelainAegis.m2', shieldGlb);
 
-  // Biome Trees & Spires (`World/Celandia/Doodads/*.m2`)
+  // Biome Trees, Foliage, Rocks, Lanterns & Ruins (`World/Celandia/Doodads/*.m2`)
   const doodads = [
     {
       name: 'PorcelainGiantTree',
       parts: [
-        { geo: cyl, color: '#6e5246', pos: [0, 4.5, 0], scale: [0.65, 9.0, 0.65] },
-        { geo: lowBall, color: '#7fa858', pos: [0, 9.5, 0], scale: [4.2, 2.6, 4.2] },
-        { geo: lowBall, color: '#98c26e', pos: [1.4, 10.6, 0.8], scale: [2.8, 2.0, 2.8] },
-        { geo: octa, color: '#7ee8fa', pos: [0.6, 2.2, 0.5], scale: [0.35, 1.2, 0.35], rot: [0.2, 0, -0.3] },
+        // Flared roots & gnarled warm-bark trunk + branches
+        { geo: cone, color: '#5c4136', pos: [0, 0.8, 0], scale: [1.35, 2.2, 1.35] },
+        { geo: cyl, color: '#6e5246', pos: [0, 4.8, 0], scale: [0.68, 9.2, 0.68] },
+        { geo: cyl, color: '#7a5c4e', pos: [1.1, 7.6, 0.4], scale: [0.32, 3.6, 0.32], rot: [0.2, 0, -0.55] },
+        { geo: cyl, color: '#7a5c4e', pos: [-1.0, 7.2, -0.5], scale: [0.3, 3.4, 0.3], rot: [-0.25, 0, 0.5] },
+        // Multi-tiered lush emerald, celadon & blossom canopy crowns
+        { geo: lowBall, color: '#588c44', pos: [0, 9.2, 0], scale: [4.6, 2.5, 4.6] },
+        { geo: lowBall, color: '#78b058', pos: [1.8, 10.4, 0.9], scale: [3.2, 2.2, 3.2] },
+        { geo: lowBall, color: '#6ca450', pos: [-1.7, 10.0, -0.8], scale: [3.1, 2.1, 3.1] },
+        { geo: lowBall, color: '#9ad074', pos: [0, 11.6, 0.2], scale: [2.8, 1.9, 2.8] },
+        { geo: lowBall, color: '#ffb4d8', pos: [0.9, 12.2, -0.6], scale: [1.4, 1.1, 1.4] },
+        // Glowing base resonance crystal & fern cluster
+        { geo: octa, color: '#8ef2fa', pos: [0.85, 1.4, 0.65], scale: [0.38, 1.35, 0.38], rot: [0.2, 0, -0.28] },
+        { geo: octa, color: '#ff9bd1', pos: [-0.75, 1.1, -0.55], scale: [0.28, 0.95, 0.28], rot: [-0.18, 0, 0.25] },
       ],
     },
     {
       name: 'FrostbellSnowFir',
       parts: [
-        { geo: cyl, color: '#483a38', pos: [0, 4.0, 0], scale: [0.4, 8.0, 0.4] },
-        { geo: cone, color: '#2f5868', pos: [0, 3.8, 0], scale: [2.8, 3.6, 2.8] },
-        { geo: cone, color: '#5888a0', pos: [0, 6.2, 0], scale: [2.1, 3.2, 2.1] },
-        { geo: cone, color: '#e4f0ff', pos: [0, 8.4, 0], scale: [1.4, 2.6, 1.4] },
+        // Towering 5-tiered snow-draped alpine fir (inspired by classic snowy pines)
+        { geo: cyl, color: '#483a38', pos: [0, 5.2, 0], scale: [0.48, 10.4, 0.48] },
+        { geo: cone, color: '#244a5c', pos: [0, 3.4, 0], scale: [3.6, 3.4, 3.6] },
+        { geo: cone, color: '#d8ecff', pos: [0, 3.7, 0], scale: [3.45, 3.0, 3.45] },
+        { geo: cone, color: '#2f5e74', pos: [0, 5.8, 0], scale: [2.9, 3.2, 2.9] },
+        { geo: cone, color: '#e4f2ff', pos: [0, 6.1, 0], scale: [2.75, 2.8, 2.75] },
+        { geo: cone, color: '#467c96', pos: [0, 8.1, 0], scale: [2.2, 3.0, 2.2] },
+        { geo: cone, color: '#f0f8ff', pos: [0, 8.4, 0], scale: [2.05, 2.6, 2.05] },
+        { geo: cone, color: '#f6fbff', pos: [0, 10.4, 0], scale: [1.35, 2.6, 1.35] },
+        { geo: octa, color: '#91eee9', pos: [0, 12.1, 0], scale: [0.35, 0.85, 0.35] },
       ],
     },
     {
       name: 'GlasswakeCrystalTree',
       parts: [
-        { geo: cone, color: '#5ab8c8', pos: [0, 3.2, 0], scale: [0.85, 6.4, 0.85] },
-        { geo: cone, color: '#ffb0e0', pos: [0.9, 2.4, 0.4], scale: [0.55, 4.8, 0.55], rot: [0.15, 0, -0.35] },
-        { geo: cone, color: '#c8fff4', pos: [-0.8, 2.1, -0.3], scale: [0.5, 4.2, 0.5], rot: [-0.15, 0, 0.35] },
+        { geo: lowBall, color: '#c8966e', pos: [0, 0.5, 0], scale: [1.5, 0.7, 1.5] },
+        { geo: cone, color: '#48b8c4', pos: [0, 3.6, 0], scale: [0.95, 7.2, 0.95] },
+        { geo: cone, color: '#ff9bd1', pos: [1.05, 2.8, 0.45], scale: [0.65, 5.4, 0.65], rot: [0.18, 0, -0.35] },
+        { geo: cone, color: '#91eee9', pos: [-0.95, 2.5, -0.4], scale: [0.6, 4.8, 0.6], rot: [-0.16, 0, 0.36] },
+        { geo: cone, color: '#ffe28a', pos: [0.3, 2.1, -0.95], scale: [0.48, 3.8, 0.48], rot: [-0.32, 0, -0.12] },
+        { geo: octa, color: '#ffffff', pos: [0, 7.4, 0], scale: [0.45, 0.9, 0.45] },
       ],
     },
     {
       name: 'AureateCypress',
       parts: [
-        { geo: cyl, color: '#6b4c35', pos: [0, 3.5, 0], scale: [0.38, 7.0, 0.38] },
-        { geo: cone, color: '#d89b38', pos: [0, 6.0, 0], scale: [1.65, 7.5, 1.65] },
-        { geo: cone, color: '#f2c45a', pos: [0, 8.5, 0], scale: [1.1, 4.5, 1.1] },
+        { geo: cone, color: '#5c402c', pos: [0, 0.7, 0], scale: [0.95, 1.6, 0.95] },
+        { geo: cyl, color: '#6b4c35', pos: [0, 4.0, 0], scale: [0.42, 8.0, 0.42] },
+        { geo: cone, color: '#c48628', pos: [0, 5.2, 0], scale: [2.1, 5.5, 2.1] },
+        { geo: cone, color: '#e0a638', pos: [0, 7.8, 0], scale: [1.65, 5.2, 1.65] },
+        { geo: cone, color: '#f8cc58', pos: [0, 10.2, 0], scale: [1.15, 4.2, 1.15] },
+        { geo: octa, color: '#fff3b8', pos: [0, 12.6, 0], scale: [0.35, 0.75, 0.35] },
       ],
     },
     {
       name: 'NocturnumObsidianSpire',
       parts: [
-        { geo: cone, color: '#2a1e3f', pos: [0, 4.5, 0], scale: [1.3, 9.0, 1.3] },
-        { geo: octa, color: '#b45aff', pos: [0, 6.5, 0], scale: [0.65, 1.8, 0.65] },
+        { geo: lowBall, color: '#1e142d', pos: [0, 0.6, 0], scale: [1.8, 0.8, 1.8] },
+        { geo: cone, color: '#2a1e3f', pos: [0, 4.8, 0], scale: [1.4, 9.6, 1.4] },
+        { geo: cone, color: '#3b2859', pos: [1.1, 3.0, 0.5], scale: [0.8, 5.8, 0.8], rot: [0.12, 0, -0.28] },
+        { geo: cone, color: '#3b2859', pos: [-1.0, 2.7, -0.4], scale: [0.75, 5.2, 0.75], rot: [-0.12, 0, 0.28] },
+        { geo: octa, color: '#c468ff', pos: [0, 7.4, 0], scale: [0.72, 2.1, 0.72] },
+        { geo: octa, color: '#ff7ad8', pos: [0, 10.2, 0], scale: [0.42, 1.1, 0.42] },
+      ],
+    },
+    {
+      name: 'PorcelainCherryTree',
+      parts: [
+        { geo: cone, color: '#583c38', pos: [0, 0.6, 0], scale: [1.1, 1.5, 1.1] },
+        { geo: cyl, color: '#644440', pos: [0, 3.8, 0], scale: [0.52, 7.4, 0.52], rot: [0.05, 0, -0.06] },
+        { geo: lowBall, color: '#f48ab8', pos: [0, 7.6, 0], scale: [3.8, 2.1, 3.8] },
+        { geo: lowBall, color: '#ffb2d6', pos: [1.5, 8.5, 0.8], scale: [2.7, 1.8, 2.7] },
+        { geo: lowBall, color: '#ffd4ea', pos: [-1.3, 8.3, -0.7], scale: [2.6, 1.7, 2.6] },
+        { geo: lowBall, color: '#fff0f6', pos: [0, 9.4, 0.2], scale: [2.2, 1.5, 2.2] },
+      ],
+    },
+    {
+      name: 'CelandiaPineGiant',
+      parts: [
+        // Tall multi-tiered evergreen forest pine (like the woodland pines in Screenshot 1)
+        { geo: cyl, color: '#543c2e', pos: [0, 5.8, 0], scale: [0.55, 11.6, 0.55] },
+        { geo: cone, color: '#2b5838', pos: [0, 4.2, 0], scale: [3.8, 3.8, 3.8] },
+        { geo: cone, color: '#366c44', pos: [0, 6.6, 0], scale: [3.1, 3.6, 3.1] },
+        { geo: cone, color: '#448252', pos: [0, 8.9, 0], scale: [2.4, 3.4, 2.4] },
+        { geo: cone, color: '#569a62', pos: [0, 11.0, 0], scale: [1.7, 3.0, 1.7] },
+        { geo: cone, color: '#6eb478', pos: [0, 12.8, 0], scale: [1.0, 2.4, 1.0] },
+      ],
+    },
+    {
+      name: 'CelandiaMossyBoulder',
+      parts: [
+        { geo: lowBall, color: '#787482', pos: [0, 0.85, 0], scale: [1.85, 1.25, 1.55] },
+        { geo: lowBall, color: '#628e54', pos: [0.1, 1.28, 0.05], scale: [1.55, 0.75, 1.3] },
+        { geo: lowBall, color: '#8a8494', pos: [1.25, 0.55, 0.65], scale: [1.05, 0.8, 0.95] },
+        { geo: lowBall, color: '#686272', pos: [-1.1, 0.48, -0.5], scale: [0.9, 0.7, 0.85] },
+        { geo: octa, color: '#91eee9', pos: [-0.45, 1.45, 0.35], scale: [0.28, 0.75, 0.28], rot: [0.15, 0, 0.25] },
+      ],
+    },
+    {
+      name: 'CelandiaRoadLantern',
+      parts: [
+        // Ornate Celandia antique-brass & porcelain streetlamp with glowing rose-gold crystal
+        { geo: cyl, color: '#e8dcd4', pos: [0, 0.35, 0], scale: [0.42, 0.7, 0.42] },
+        { geo: cyl, color: '#d7a748', pos: [0, 2.3, 0], scale: [0.12, 3.8, 0.12] },
+        { geo: box, color: '#d7a748', pos: [0.45, 4.05, 0], scale: [1.0, 0.1, 0.1] },
+        { geo: octa, color: '#ff9bd1', pos: [0.82, 3.6, 0], scale: [0.32, 0.48, 0.32] },
+        { geo: sphere, color: '#fff3e3', pos: [0.82, 3.6, 0], scale: [0.22, 0.28, 0.22] },
+      ],
+    },
+    {
+      name: 'CelandiaAncientArch',
+      parts: [
+        // Weathered porcelain-marble colonnade pillar & arch lintel
+        { geo: box, color: '#dcd0d8', pos: [-1.6, 0.35, 0], scale: [0.95, 0.7, 0.95] },
+        { geo: cyl, color: '#eee4ea', pos: [-1.6, 2.8, 0], scale: [0.38, 4.6, 0.38] },
+        { geo: box, color: '#dcd0d8', pos: [1.6, 0.35, 0], scale: [0.95, 0.7, 0.95] },
+        { geo: cyl, color: '#eee4ea', pos: [1.6, 2.8, 0], scale: [0.38, 4.6, 0.38] },
+        { geo: box, color: '#f5e8ef', pos: [0, 5.25, 0], scale: [4.2, 0.65, 0.85] },
+        { geo: octa, color: '#ffd45a', pos: [0, 5.95, 0], scale: [0.42, 0.75, 0.42] },
       ],
     },
   ];
   for (const d of doodads) {
     writeFile(`World/Celandia/Doodads/${d.name}.m2`, buildProceduralPartsGlb(d.parts, 'static'));
+  }
+
+  // 10 3D Ground Clutter Models (`World/NoDXT/Detail/*.m2`) scattered by `ClutterPlugin`
+  const detailClutterModels = [
+    {
+      name: 'PorcelainGrassTuft',
+      parts: [
+        { geo: cone, color: '#589c48', pos: [0, 0.28, 0], scale: [0.08, 0.56, 0.08] },
+        { geo: cone, color: '#74bc5c', pos: [0.12, 0.24, 0.06], scale: [0.07, 0.48, 0.07], rot: [0.15, 0, -0.32] },
+        { geo: cone, color: '#68b052', pos: [-0.12, 0.25, -0.05], scale: [0.07, 0.5, 0.07], rot: [-0.14, 0, 0.3] },
+        { geo: cone, color: '#8ad06c', pos: [0.05, 0.22, -0.12], scale: [0.06, 0.44, 0.06], rot: [-0.28, 0, -0.12] },
+        { geo: cone, color: '#4e8e40', pos: [-0.06, 0.22, 0.12], scale: [0.06, 0.44, 0.06], rot: [0.28, 0, 0.14] },
+      ],
+    },
+    {
+      name: 'PorcelainWildflower',
+      parts: [
+        { geo: cone, color: '#5c9e4c', pos: [0, 0.2, 0], scale: [0.16, 0.38, 0.16] },
+        { geo: sphere, color: '#ff9bd1', pos: [0, 0.44, 0], scale: [0.14, 0.1, 0.14] },
+        { geo: sphere, color: '#ffe28a', pos: [0, 0.47, 0], scale: [0.06, 0.06, 0.06] },
+        { geo: sphere, color: '#fff3e3', pos: [0.14, 0.34, 0.08], scale: [0.11, 0.08, 0.11] },
+        { geo: sphere, color: '#91eee9', pos: [-0.13, 0.32, -0.07], scale: [0.1, 0.08, 0.1] },
+      ],
+    },
+    {
+      name: 'PorcelainFern',
+      parts: [
+        { geo: cone, color: '#4e8f46', pos: [0.16, 0.18, 0], scale: [0.1, 0.42, 0.18], rot: [0, 0, -0.65] },
+        { geo: cone, color: '#5ea452', pos: [-0.16, 0.18, 0], scale: [0.1, 0.42, 0.18], rot: [0, 0, 0.65] },
+        { geo: cone, color: '#6eb860', pos: [0, 0.18, 0.16], scale: [0.18, 0.42, 0.1], rot: [0.65, 0, 0] },
+        { geo: cone, color: '#589c4c', pos: [0, 0.18, -0.16], scale: [0.18, 0.42, 0.1], rot: [-0.65, 0, 0] },
+      ],
+    },
+    {
+      name: 'FrostbellSnowTuft',
+      parts: [
+        { geo: cone, color: '#cce6fa', pos: [0, 0.25, 0], scale: [0.08, 0.5, 0.08] },
+        { geo: cone, color: '#e8f4ff', pos: [0.11, 0.22, 0.05], scale: [0.07, 0.44, 0.07], rot: [0.15, 0, -0.3] },
+        { geo: cone, color: '#98c8e8', pos: [-0.11, 0.22, -0.05], scale: [0.07, 0.44, 0.07], rot: [-0.15, 0, 0.3] },
+      ],
+    },
+    {
+      name: 'FrostbellIceCrystal',
+      parts: [
+        { geo: octa, color: '#91eee9', pos: [0, 0.28, 0], scale: [0.12, 0.48, 0.12] },
+        { geo: octa, color: '#e6f8ff', pos: [0.12, 0.2, 0.06], scale: [0.09, 0.34, 0.09], rot: [0.15, 0, -0.35] },
+        { geo: octa, color: '#b8e8ff', pos: [-0.1, 0.18, -0.06], scale: [0.08, 0.3, 0.08], rot: [-0.15, 0, 0.35] },
+      ],
+    },
+    {
+      name: 'GlasswakeSucculent',
+      parts: [
+        { geo: cone, color: '#4ec4bc', pos: [0, 0.24, 0], scale: [0.12, 0.46, 0.12] },
+        { geo: cone, color: '#68dcd2', pos: [0.14, 0.18, 0], scale: [0.1, 0.36, 0.1], rot: [0, 0, -0.5] },
+        { geo: cone, color: '#68dcd2', pos: [-0.14, 0.18, 0], scale: [0.1, 0.36, 0.1], rot: [0, 0, 0.5] },
+        { geo: sphere, color: '#ff9bd1', pos: [0, 0.46, 0], scale: [0.08, 0.08, 0.08] },
+      ],
+    },
+    {
+      name: 'AureateGoldenWheat',
+      parts: [
+        { geo: cone, color: '#e2b244', pos: [0, 0.3, 0], scale: [0.07, 0.6, 0.07] },
+        { geo: cone, color: '#f4cc64', pos: [0.11, 0.26, 0.05], scale: [0.06, 0.52, 0.06], rot: [0.12, 0, -0.26] },
+        { geo: cone, color: '#d49e36', pos: [-0.11, 0.26, -0.05], scale: [0.06, 0.52, 0.06], rot: [-0.12, 0, 0.26] },
+      ],
+    },
+    {
+      name: 'AureateSunflower',
+      parts: [
+        { geo: cyl, color: '#588e42', pos: [0, 0.22, 0], scale: [0.04, 0.44, 0.04] },
+        { geo: sphere, color: '#ffd448', pos: [0, 0.46, 0], scale: [0.18, 0.07, 0.18] },
+        { geo: sphere, color: '#6b3e1e', pos: [0, 0.48, 0], scale: [0.08, 0.05, 0.08] },
+      ],
+    },
+    {
+      name: 'NocturnumGlowShroom',
+      parts: [
+        { geo: cyl, color: '#dcd0f0', pos: [0, 0.16, 0], scale: [0.04, 0.32, 0.04] },
+        { geo: cone, color: '#c468ff', pos: [0, 0.34, 0], scale: [0.18, 0.14, 0.18] },
+        { geo: cyl, color: '#dcd0f0', pos: [0.14, 0.11, 0.08], scale: [0.03, 0.22, 0.03] },
+        { geo: cone, color: '#ff7ad8', pos: [0.14, 0.24, 0.08], scale: [0.13, 0.1, 0.13] },
+      ],
+    },
+    {
+      name: 'NocturnumVioletMoss',
+      parts: [
+        { geo: cone, color: '#6a4294', pos: [0, 0.22, 0], scale: [0.1, 0.44, 0.1] },
+        { geo: cone, color: '#8e58c4', pos: [0.12, 0.18, 0.06], scale: [0.09, 0.36, 0.09], rot: [0.18, 0, -0.35] },
+        { geo: octa, color: '#ceb4ff', pos: [-0.1, 0.2, -0.06], scale: [0.08, 0.34, 0.08], rot: [-0.15, 0, 0.3] },
+      ],
+    },
+  ];
+  for (const dm of detailClutterModels) {
+    writeFile(`World/NoDXT/Detail/${dm.name}.m2`, buildProceduralPartsGlb(dm.parts, 'static'));
   }
 
   // Spell Visual FX Models (`Spells/*.m2`)
@@ -916,19 +1092,110 @@ function buildModels() {
 }
 
 // ============================================================================
-// 3. WDT & ADT Terrain Builder from Celandia `atlas.js`
+// 3. WDT, WDL & Multi-Layer Splat ADT Terrain Builder from Celandia `atlas.js`
 // ============================================================================
 const TILE_SIZE = 533.3333333;
 const CHUNK_SIZE = TILE_SIZE / 16.0;
 const UNIT_SIZE = CHUNK_SIZE / 8.0;
 const MAP_CENTER = 32.0 * TILE_SIZE;
 
-// Map WoW world (wx, wy) -> Celandia atlas (cx = -wy, cz = -wx)
+// Kingdom hub centers in WoW world coordinates [wx, wy]
+const KINGDOM_HUBS = [
+  [0.0, 0.0],       // Porcelain Wake
+  [430.0, 470.0],   // Frostbell Lagoon
+  [-40.0, -480.0],  // Glasswake Mesas
+  [500.0, -330.0],  // The Aureate Reach
+  [-320.0, 360.0],  // Nocturnum Isle
+];
+
+// Map WoW world (wx, wy) -> Celandia atlas (cx = -wy, cz = -wx) with sculpted ridge relief outside hubs
 function sampleCelandiaHeight(wx, wy) {
   const cx = -wy;
   const cz = -wx;
-  return atlas.height(cx, cz);
+  let baseH = atlas.height(cx, cz);
+  if (baseH <= atlas.SEA + 0.5) return baseH;
+
+  // Keep a smooth, flat combat courtyard within 42 yards of each Kingdom hub & WMO footprint
+  let minHubDist = Infinity;
+  for (const [hx, hy] of KINGDOM_HUBS) {
+    const d = Math.hypot(wx - hx, wy - hy);
+    if (d < minHubDist) minHubDist = d;
+    const dWmo = Math.hypot(wx - (hx - 52.0), wy - hy);
+    if (dWmo < minHubDist) minHubDist = dWmo;
+  }
+  const reliefMask = Math.max(0.0, Math.min(1.0, (minHubDist - 42.0) / 48.0));
+  if (reliefMask <= 0.0) return baseH;
+
+  // Add rolling Celandia hills and scenic perimeter ridges (like Screenshots 1 & 3)
+  const ridge1 = Math.sin(wx * 0.014 + wy * 0.011) * Math.cos(wx * 0.009 - wy * 0.015);
+  const ridge2 = Math.sin(wx * 0.031 - wy * 0.027 + 1.4) * 0.5 + 0.5;
+  const extraRelief = (Math.max(0, ridge1) * 9.5 + ridge2 * 3.8) * reliefMask;
+  return baseH + extraRelief;
 }
+
+// Compute distance to nearest Celandia cobblestone road or courtyard ring
+function sampleRoadAndMeadowWeights(wx, wy, wz, nz) {
+  if (wz < atlas.SEA + 0.8) {
+    return { roadWeight: 0, flowerWeight: 0, cliffWeight: wz < atlas.SEA + 2.2 ? 0.75 : 0 };
+  }
+
+  let roadWeight = 0.0;
+  // 1. Ornate cobblestone courtyard plaza + circular promenade around each Kingdom Hub
+  for (const [hx, hy] of KINGDOM_HUBS) {
+    const dHub = Math.hypot(wx - hx, wy - hy);
+    // Central medallion (radius 8..15 yds) and outer courtyard ring (radius 24..30 yds)
+    if (dHub < 14.0) {
+      roadWeight = Math.max(roadWeight, Math.min(1.0, (14.0 - dHub) / 4.0) * 0.85);
+    }
+    const ringDist = Math.abs(dHub - 26.0);
+    if (ringDist < 4.5) {
+      roadWeight = Math.max(roadWeight, (1.0 - ringDist / 4.5) * 0.95);
+    }
+    // Avenue connecting hub courtyard `[hx, hy]` to WMO Palace entrance `[hx - 34, hy]`
+    if (wx <= hx + 4.0 && wx >= hx - 38.0) {
+      const dPalaceAve = Math.abs(wy - hy);
+      if (dPalaceAve < 5.5) {
+        roadWeight = Math.max(roadWeight, Math.min(1.0, (5.5 - dPalaceAve) / 2.2));
+      }
+    }
+  }
+
+  // 2. Winding royal roads radiating from Porcelain Wake `[0, 0]` toward the 4 outer kingdoms
+  for (let i = 1; i < KINGDOM_HUBS.length; i++) {
+    const [tx, ty] = KINGDOM_HUBS[i];
+    const segLenSq = tx * tx + ty * ty;
+    const t = Math.max(0.0, Math.min(1.0, (wx * tx + wy * ty) / segLenSq));
+    // Gentle sinusoidal meander along the road
+    const perpX = -ty / Math.sqrt(segLenSq);
+    const perpY = tx / Math.sqrt(segLenSq);
+    const meander = Math.sin(t * Math.PI * 6.0 + i * 1.7) * 14.0 * Math.sin(t * Math.PI);
+    const rx = tx * t + perpX * meander;
+    const ry = ty * t + perpY * meander;
+    const dRoad = Math.hypot(wx - rx, wy - ry);
+    if (dRoad < 5.8) {
+      roadWeight = Math.max(roadWeight, Math.min(1.0, (5.8 - dRoad) / 2.4));
+    }
+  }
+
+  // 3. Wildflower meadow patches (lush along road verges & sunny clearings)
+  const fNoise = Math.sin(wx * 0.055 + Math.cos(wy * 0.048) * 2.2) * Math.cos(wy * 0.052 - wx * 0.037) * 0.5 + 0.5;
+  let flowerWeight = Math.max(0.0, Math.min(1.0, (fNoise - 0.52) * 2.4)) * (1.0 - roadWeight * 0.9);
+
+  // 4. Cliff rock & shoreline shingle on steeper slopes or near water's edge
+  const slope = 1.0 - Math.max(0.0, Math.min(1.0, nz));
+  const shore = wz < atlas.SEA + 2.6 ? Math.max(0.0, (atlas.SEA + 2.6 - wz) / 2.6) : 0.0;
+  const cliffWeight = Math.min(1.0, Math.max(slope > 0.11 ? (slope - 0.11) * 4.5 : 0.0, shore * 0.85)) * (1.0 - roadWeight);
+
+  return { roadWeight, flowerWeight, cliffWeight };
+}
+
+const BIOME_GROUND_EFFECT_IDS = [
+  6,  // 0: PorcelainGrass -> GroundEffectTexture 6 (Grass + grass tufts, wildflowers, ferns)
+  4,  // 1: FrostbellSnow -> GroundEffectTexture 4 (Snow + footprints + frost tufts & ice crystals)
+  8,  // 2: GlasswakeSand -> GroundEffectTexture 8 (Sand + footprints + desert succulents)
+  10, // 3: AureateTerrace -> GroundEffectTexture 10 (DustyGrass + golden wheat & sunflowers)
+  9,  // 4: NocturnumBasalt -> GroundEffectTexture 9 (Soggy + glowing mushrooms & violet moss)
+];
 
 function sampleCelandiaAreaAndTex(wx, wy) {
   const cx = -wy;
@@ -977,25 +1244,104 @@ function buildWdtFile(activeTiles) {
   ]);
 }
 
+function buildWdlFile() {
+  const mver = Buffer.alloc(4);
+  mver.writeUInt32LE(18, 0);
+  const mverChunk = makeIffChunk('REVM', mver); // 12 bytes
+
+  const maofPayload = Buffer.alloc(4096 * 4, 0);
+  const mareChunks = [];
+  // MVER (12B) + MAOF header (8B) + MAOF payload (16384B) = 16404
+  let currentOffset = 12 + 8 + 4096 * 4;
+
+  const sampleWdlHeight = (wx, wy) => {
+    const dCenter = Math.hypot(wx, wy);
+    if (dCenter < 1150.0) {
+      return Math.round(sampleCelandiaHeight(wx, wy));
+    }
+    // Majestic distant mountain ring on the horizon (1250..2400 yds out, like Screenshot 3)
+    const ang = Math.atan2(wy, wx);
+    const ringT = Math.max(0.0, 1.0 - Math.abs(dCenter - 1750.0) / 550.0);
+    if (ringT <= 0.0) return Math.round(atlas.SEA);
+    const peaks = (Math.sin(ang * 7.0 + 0.5) * 0.5 + 0.5) * 95.0 + (Math.cos(ang * 13.0 - 1.2) * 0.5 + 0.5) * 55.0;
+    return Math.round(atlas.SEA + (peaks + 25.0) * (ringT * ringT));
+  };
+
+  for (let ty = 26; ty <= 37; ty++) {
+    for (let tx = 26; tx <= 37; tx++) {
+      const tileIdx = ty * 64 + tx;
+      maofPayload.writeUInt32LE(currentOffset, tileIdx * 4);
+
+      const marePayload = Buffer.alloc((289 + 256) * 2, 0);
+      let off = 0;
+      for (let r = 0; r < 17; r++) {
+        for (let c = 0; c < 17; c++) {
+          const wx = MAP_CENTER - (ty * 16 + r) * CHUNK_SIZE;
+          const wy = MAP_CENTER - (tx * 16 + c) * CHUNK_SIZE;
+          const h = Math.max(-32768, Math.min(32767, sampleWdlHeight(wx, wy)));
+          marePayload.writeInt16LE(h, off);
+          off += 2;
+        }
+      }
+      for (let r = 0; r < 16; r++) {
+        for (let c = 0; c < 16; c++) {
+          const wx = MAP_CENTER - (ty * 16 + r + 0.5) * CHUNK_SIZE;
+          const wy = MAP_CENTER - (tx * 16 + c + 0.5) * CHUNK_SIZE;
+          const h = Math.max(-32768, Math.min(32767, sampleWdlHeight(wx, wy)));
+          marePayload.writeInt16LE(h, off);
+          off += 2;
+        }
+      }
+      const mareChunk = makeIffChunk('ERAM', marePayload);
+      mareChunks.push(mareChunk);
+      currentOffset += mareChunk.length;
+    }
+  }
+
+  return Buffer.concat([
+    mverChunk,
+    makeIffChunk('FOAM', maofPayload),
+    ...mareChunks,
+  ]);
+}
+
+function pack4BitAlphaLayer(weights64x64) {
+  const buf = Buffer.alloc(2048, 0);
+  for (let i = 0; i < 2048; i++) {
+    const n0 = Math.max(0, Math.min(15, Math.round(weights64x64[i * 2] * 15)));
+    const n1 = Math.max(0, Math.min(15, Math.round(weights64x64[i * 2 + 1] * 15)));
+    buf[i] = (n0 & 0x0F) | ((n1 & 0x0F) << 4);
+  }
+  return buf;
+}
+
 function buildAdtTile(tx, ty, wmoInfo = null) {
   const tileNwX = (32 - ty) * TILE_SIZE;
   const tileNwY = (32 - tx) * TILE_SIZE;
 
   const texPaths = [
-    'Tileset\\Celandia\\PorcelainGrass.blp',
-    'Tileset\\Celandia\\FrostbellSnow.blp',
-    'Tileset\\Celandia\\GlasswakeSand.blp',
-    'Tileset\\Celandia\\AureateTerrace.blp',
-    'Tileset\\Celandia\\NocturnumBasalt.blp',
+    'Tileset\\Celandia\\PorcelainGrass.blp',      // 0
+    'Tileset\\Celandia\\FrostbellSnow.blp',       // 1
+    'Tileset\\Celandia\\GlasswakeSand.blp',       // 2
+    'Tileset\\Celandia\\AureateTerrace.blp',      // 3
+    'Tileset\\Celandia\\NocturnumBasalt.blp',     // 4
+    'Tileset\\Celandia\\PorcelainRoad.blp',       // 5: Cobblestone road & courtyard layer
+    'Tileset\\Celandia\\CelandiaWildflowers.blp', // 6: Wildflower & clover meadow layer
+    'Tileset\\Celandia\\CelandiaCliffRock.blp',   // 7: Stratified cliff & shoreline rock layer
   ];
   const mtexBuf = Buffer.from(texPaths.join('\0') + '\0', 'utf8');
 
   const doodadPaths = [
-    'World\\Celandia\\Doodads\\PorcelainGiantTree.mdx',
-    'World\\Celandia\\Doodads\\FrostbellSnowFir.mdx',
-    'World\\Celandia\\Doodads\\GlasswakeCrystalTree.mdx',
-    'World\\Celandia\\Doodads\\AureateCypress.mdx',
-    'World\\Celandia\\Doodads\\NocturnumObsidianSpire.mdx',
+    'World\\Celandia\\Doodads\\PorcelainGiantTree.mdx',     // 0
+    'World\\Celandia\\Doodads\\FrostbellSnowFir.mdx',       // 1
+    'World\\Celandia\\Doodads\\GlasswakeCrystalTree.mdx',   // 2
+    'World\\Celandia\\Doodads\\AureateCypress.mdx',         // 3
+    'World\\Celandia\\Doodads\\NocturnumObsidianSpire.mdx', // 4
+    'World\\Celandia\\Doodads\\PorcelainCherryTree.mdx',    // 5
+    'World\\Celandia\\Doodads\\CelandiaPineGiant.mdx',      // 6
+    'World\\Celandia\\Doodads\\CelandiaMossyBoulder.mdx',   // 7
+    'World\\Celandia\\Doodads\\CelandiaRoadLantern.mdx',    // 8
+    'World\\Celandia\\Doodads\\CelandiaAncientArch.mdx',    // 9
   ];
   const mmidOffsets = [];
   let mmdxStr = '';
@@ -1007,41 +1353,82 @@ function buildAdtTile(tx, ty, wmoInfo = null) {
   const mmidBuf = Buffer.alloc(mmidOffsets.length * 4);
   mmidOffsets.forEach((off, i) => mmidBuf.writeUInt32LE(off, i * 4));
 
-  // Scatter biome trees/spires across dry land (leaving a clear 38-yard arena heart at each island center)
   const mddfEntries = [];
-  let uniqueIdBase = (ty * 64 + tx) * 1000 + 1;
-  for (let r = 1; r < 15; r += 2) {
-    for (let c = 1; c < 15; c += 2) {
-      const wx = tileNwX - (r + 0.5) * CHUNK_SIZE;
-      const wy = tileNwY - (c + 0.5) * CHUNK_SIZE;
-      const wz = sampleCelandiaHeight(wx, wy);
-      if (wz < atlas.SEA + 1.8) continue; // Skip underwater/shoreline
+  let uniqueIdBase = (ty * 64 + tx) * 4000 + 1;
 
-      // Keep island arena hearts open for combat
-      const cx = -wy;
-      const cz = -wx;
-      let nearHeart = Math.hypot(cx, cz) < 42;
-      for (const isl of [...atlas.ISLANDS, atlas.NOCTURNUM_ISLE]) {
-        if (Math.hypot(cx - isl.x, cz - isl.z) < 42) nearHeart = true;
+  const pushDoodad = (nameId, wx, wy, wz, rotY, scaleF) => {
+    const mddf = Buffer.alloc(36);
+    mddf.writeUInt32LE(nameId, 0);
+    mddf.writeUInt32LE(uniqueIdBase++, 4);
+    mddf.writeFloatLE(MAP_CENTER - wy, 8);
+    mddf.writeFloatLE(wz, 12);
+    mddf.writeFloatLE(MAP_CENTER - wx, 16);
+    mddf.writeFloatLE(0, 20);
+    mddf.writeFloatLE(rotY, 24);
+    mddf.writeFloatLE(0, 28);
+    mddf.writeUInt16LE(Math.max(256, Math.min(3072, Math.round(scaleF * 1024))), 32);
+    mddf.writeUInt16LE(0, 34);
+    mddfEntries.push(mddf);
+  };
+
+  // 1. Place ornate Celandia street lanterns & cherry/pine trees around Kingdom courtyard rings
+  for (const [hx, hy] of KINGDOM_HUBS) {
+    for (let i = 0; i < 8; i++) {
+      const ang = i * (Math.PI / 4.0) + 0.22;
+      const lx = hx + Math.cos(ang) * 29.5;
+      const ly = hy + Math.sin(ang) * 29.5;
+      if (lx <= tileNwX && lx > tileNwX - TILE_SIZE && ly <= tileNwY && ly > tileNwY - TILE_SIZE) {
+        const lz = sampleCelandiaHeight(lx, ly);
+        if (lz > atlas.SEA + 1.0) {
+          pushDoodad(8, lx, ly, lz, (ang * 180.0) / Math.PI + 180.0, 1.05);
+        }
       }
-      if (nearHeart) continue;
+    }
+  }
 
-      const { texId } = sampleCelandiaAreaAndTex(wx, wy);
-      const h = hash2(wx * 0.13, wy * 0.17);
-      if (h < 0.42) continue;
+  // 2. Scatter lush woodland groves, cherry blossom trees, towering pines, mossy boulders & ruins across every chunk
+  for (let r = 0; r < 16; r++) {
+    for (let c = 0; c < 16; c++) {
+      for (let sub = 0; sub < 2; sub++) {
+        const jx = hash2(r * 19 + sub * 7 + tx * 31, c * 23 + ty * 37);
+        const jy = hash2(r * 29 + sub * 13 + tx * 41, c * 31 + ty * 43);
+        const wx = tileNwX - (r + 0.18 + jx * 0.64) * CHUNK_SIZE;
+        const wy = tileNwY - (c + 0.18 + jy * 0.64) * CHUNK_SIZE;
+        const wz = sampleCelandiaHeight(wx, wy);
+        if (wz < atlas.SEA + 1.5) continue;
 
-      const mddf = Buffer.alloc(36);
-      mddf.writeUInt32LE(texId, 0);               // name_id matches biome tree
-      mddf.writeUInt32LE(uniqueIdBase++, 4);      // unique_id
-      mddf.writeFloatLE(MAP_CENTER - wy, 8);      // pos[0] = MAP_CENTER - wow_y
-      mddf.writeFloatLE(wz, 12);                  // pos[1] = wow_z
-      mddf.writeFloatLE(MAP_CENTER - wx, 16);     // pos[2] = MAP_CENTER - wow_x
-      mddf.writeFloatLE(0, 20);
-      mddf.writeFloatLE(h * 360.0, 24);
-      mddf.writeFloatLE(0, 28);
-      mddf.writeUInt16LE(Math.round((0.85 + (h - 0.42) * 0.9) * 1024), 32); // scale
-      mddf.writeUInt16LE(0, 34);
-      mddfEntries.push(mddf);
+        // Keep the inner 32-yard combat courtyard and WMO footprints clear
+        let clearZone = false;
+        for (const [hx, hy] of KINGDOM_HUBS) {
+          if (Math.hypot(wx - hx, wy - hy) < 32.0) clearZone = true;
+          if (Math.hypot(wx - (hx - 52.0), wy - hy) < 28.0) clearZone = true;
+        }
+        if (clearZone) continue;
+
+        const { roadWeight } = sampleRoadAndMeadowWeights(wx, wy, wz, 1.0);
+        if (roadWeight > 0.35) continue; // Never block roads
+
+        const { texId } = sampleCelandiaAreaAndTex(wx, wy);
+        const h = hash2(wx * 0.13 + sub * 3.1, wy * 0.17 - sub * 2.7);
+        if (h < 0.28) continue;
+
+        let modelId = texId;
+        let scaleF = 0.85 + (h - 0.28) * 1.15;
+        if (h > 0.88) {
+          modelId = 7; // CelandiaMossyBoulder
+          scaleF = 0.75 + (h - 0.88) * 3.0;
+        } else if (h > 0.82 && texId === 0) {
+          modelId = 5; // PorcelainCherryTree
+          scaleF = 0.95 + (h - 0.82) * 4.0;
+        } else if (h > 0.72 && (texId === 0 || texId === 1)) {
+          modelId = 6; // CelandiaPineGiant
+          scaleF = 0.95 + (h - 0.72) * 2.5;
+        } else if (h > 0.94) {
+          modelId = 9; // CelandiaAncientArch
+          scaleF = 0.9;
+        }
+        pushDoodad(modelId, wx, wy, wz, h * 360.0, scaleF);
+      }
     }
   }
   const mddfBuf = mddfEntries.length > 0 ? Buffer.concat(mddfEntries) : Buffer.alloc(0);
@@ -1076,7 +1463,6 @@ function buildAdtTile(tx, ty, wmoInfo = null) {
         nx /= len;
         ny /= len;
         nz /= len;
-        // Disk MCNR order is [x, z, y] where to_normalized() returns [x, y, z] and terrain.rs swaps back
         mcnrPayload.writeInt8(Math.max(-127, Math.min(127, Math.round(nx * 127))), vi * 3 + 0);
         mcnrPayload.writeInt8(Math.max(-127, Math.min(127, Math.round(ny * 127))), vi * 3 + 1);
         mcnrPayload.writeInt8(Math.max(-127, Math.min(127, Math.round(nz * 127))), vi * 3 + 2);
@@ -1094,25 +1480,109 @@ function buildAdtTile(tx, ty, wmoInfo = null) {
         }
       }
 
-      const mclyPayload = Buffer.alloc(16);
-      mclyPayload.writeUInt32LE(texId, 0);        // texture_id
-      mclyPayload.writeUInt32LE(0, 4);            // flags
-      mclyPayload.writeUInt32LE(0, 8);            // offset_in_mcal
-      mclyPayload.writeUInt32LE(0xFFFFFFFF, 12);  // effect_id (none)
+      // Build 4-layer MCLY + 64x64 MCAL alpha splat maps (Road, Wildflowers, Cliff Rock) + MCSH baked shadow map
+      const roadAlpha = new Float32Array(64 * 64);
+      const flowerAlpha = new Float32Array(64 * 64);
+      const cliffAlpha = new Float32Array(64 * 64);
+      const mcshPayload = Buffer.alloc(512, 0);
 
-      const mcvtChunk = makeIffChunk('TVCM', mcvtPayload); // 588 bytes
-      const mcnrChunk = makeIffChunk('RNCM', mcnrPayload); // 456 bytes
-      const mclyChunk = makeIffChunk('YLCM', mclyPayload); // 24 bytes
+      for (let ay = 0; ay < 64; ay++) {
+        for (let ax = 0; ax < 64; ax++) {
+          const vx = chunkNwX - (ay / 63.0) * CHUNK_SIZE;
+          const vy = chunkNwY - (ax / 63.0) * CHUNK_SIZE;
+          const vz = sampleCelandiaHeight(vx, vy);
+          const dzdx = (sampleCelandiaHeight(vx + eps, vy) - sampleCelandiaHeight(vx - eps, vy)) / (2 * eps);
+          const dzdy = (sampleCelandiaHeight(vx, vy + eps) - sampleCelandiaHeight(vx, vy - eps)) / (2 * eps);
+          const nz = 1.0 / Math.hypot(dzdx, dzdy, 1.0);
+
+          const idx = ay * 64 + ax;
+          const { roadWeight, flowerWeight, cliffWeight } = sampleRoadAndMeadowWeights(vx, vy, vz, nz);
+          roadAlpha[idx] = roadWeight;
+          flowerAlpha[idx] = flowerWeight;
+          cliffAlpha[idx] = cliffWeight;
+
+          // Directional hill & canopy shadow bit for MCSH
+          const sunSlope = dzdx * 0.55 + dzdy * 0.45;
+          if (sunSlope < -0.18) {
+            mcshPayload[ay * 8 + (ax >> 3)] |= 1 << (ax & 7);
+          }
+        }
+      }
+
+      // Build predominantTexture (`0x40..0x4F`, 2 bits/cell) and noEffectDoodad (`0x50..0x57`, 1 bit/cell)
+      const pt16 = Buffer.alloc(16, 0);
+      const ned8 = Buffer.alloc(8, 0);
+      for (let cr = 0; cr < 8; cr++) {
+        for (let cc = 0; cc < 8; cc++) {
+          const cellIdx = cr * 8 + cc;
+          const sampleIdx = (cr * 8 + 4) * 64 + (cc * 8 + 4);
+          const rw = roadAlpha[sampleIdx];
+          const fw = flowerAlpha[sampleIdx];
+          const cw = cliffAlpha[sampleIdx];
+          let predLayer = 0;
+          if (rw > 0.42) {
+            predLayer = 1; // Road layer
+            ned8[cellIdx >> 3] |= 1 << (cellIdx & 7); // Suppress grass clutter on cobblestone roads!
+          } else if (cw > 0.48) {
+            predLayer = 3; // Cliff rock layer
+            ned8[cellIdx >> 3] |= 1 << (cellIdx & 7);
+          } else if (fw > 0.45) {
+            predLayer = 2; // Wildflower meadow layer
+          }
+          pt16[cellIdx >> 2] |= (predLayer & 0x3) << (2 * (cellIdx & 3));
+        }
+      }
+
+      const mcalPayload = Buffer.concat([
+        pack4BitAlphaLayer(roadAlpha),   // Layer 1 @ offset 0
+        pack4BitAlphaLayer(flowerAlpha), // Layer 2 @ offset 2048
+        pack4BitAlphaLayer(cliffAlpha),  // Layer 3 @ offset 4096
+      ]);
+
+      const biomeEffectId = BIOME_GROUND_EFFECT_IDS[texId] ?? 6;
+      const mclyPayload = Buffer.alloc(16 * 4);
+      // Layer 0: Biome base (PorcelainGrass / FrostbellSnow / GlasswakeSand / AureateTerrace / NocturnumBasalt)
+      mclyPayload.writeUInt32LE(texId, 0);
+      mclyPayload.writeUInt32LE(0, 4);
+      mclyPayload.writeUInt32LE(0, 8);
+      mclyPayload.writeUInt32LE(biomeEffectId, 12);
+      // Layer 1: PorcelainRoad.blp (Stone footsteps, no clutter)
+      mclyPayload.writeUInt32LE(5, 16);
+      mclyPayload.writeUInt32LE(0x100, 20); // USE_ALPHA_MAP
+      mclyPayload.writeUInt32LE(0, 24);
+      mclyPayload.writeUInt32LE(3, 28);
+      // Layer 2: CelandiaWildflowers.blp (Wildflower + fern clutter)
+      mclyPayload.writeUInt32LE(6, 32);
+      mclyPayload.writeUInt32LE(0x100, 36);
+      mclyPayload.writeUInt32LE(2048, 40);
+      mclyPayload.writeUInt32LE(7, 44);
+      // Layer 3: CelandiaCliffRock.blp (Stone footsteps, bare cliff rock)
+      mclyPayload.writeUInt32LE(7, 48);
+      mclyPayload.writeUInt32LE(0x100, 52);
+      mclyPayload.writeUInt32LE(4096, 56);
+      mclyPayload.writeUInt32LE(3, 60);
+
+      const mcvtChunk = makeIffChunk('TVCM', mcvtPayload);
+      const mcnrChunk = makeIffChunk('RNCM', mcnrPayload);
+      const mclyChunk = makeIffChunk('YLCM', mclyPayload);
+      const mcalChunk = makeIffChunk('LACM', mcalPayload);
+      const mcshChunk = makeIffChunk('HSCM', mcshPayload);
+
+      const ofsMcvt = 128;
+      const ofsMcnr = ofsMcvt + mcvtChunk.length;
+      const ofsMcly = ofsMcnr + mcnrChunk.length;
+      const ofsMcal = ofsMcly + mclyChunk.length;
+      const ofsMcsh = ofsMcal + mcalChunk.length;
 
       const hasOcean = minGroundZ < atlas.SEA + 0.25;
       let mclqChunk = Buffer.alloc(0);
       let ofsMclq = 0;
       let sizeLiquid = 0;
-      let flags = 0;
+      let flags = 0x01; // MCNK_HAS_MCSH
 
       if (hasOcean) {
-        flags = 0x08; // MCNK_LIQUID_OCEAN bit
-        ofsMclq = 128 + mcvtChunk.length + mcnrChunk.length + mclyChunk.length;
+        flags |= 0x08; // MCNK_LIQUID_OCEAN bit
+        ofsMclq = ofsMcsh + mcshChunk.length;
         sizeLiquid = 0x324; // 804 bytes
         const mclqPayload = Buffer.alloc(0x324, 0);
         mclqPayload.writeFloatLE(atlas.SEA, 0); // min_height
@@ -1135,19 +1605,25 @@ function buildAdtTile(tx, ty, wmoInfo = null) {
       hdr.writeUInt32LE(flags, 0x00);
       hdr.writeUInt32LE(col, 0x04); // index_x
       hdr.writeUInt32LE(row, 0x08); // index_y
-      hdr.writeUInt32LE(1, 0x0C);   // n_layers = 1
-      hdr.writeUInt32LE(128, 0x14); // ofs_mcvt
-      hdr.writeUInt32LE(128 + mcvtChunk.length, 0x18); // ofs_mcnr
-      hdr.writeUInt32LE(128 + mcvtChunk.length + mcnrChunk.length, 0x1C); // ofs_mcly
+      hdr.writeUInt32LE(4, 0x0C);   // n_layers = 4
+      hdr.writeUInt32LE(ofsMcvt, 0x14);
+      hdr.writeUInt32LE(ofsMcnr, 0x18);
+      hdr.writeUInt32LE(ofsMcly, 0x1C);
+      hdr.writeUInt32LE(ofsMcal, 0x24);
+      hdr.writeUInt32LE(mcalPayload.length, 0x28); // size_alpha = 6144
+      hdr.writeUInt32LE(ofsMcsh, 0x2C);
+      hdr.writeUInt32LE(mcshPayload.length, 0x30); // size_shadow = 512
       hdr.writeUInt32LE(areaId, 0x34); // area_id
       hdr.writeUInt16LE(0, 0x3C);      // holes_low_res
+      pt16.copy(hdr, 0x40);            // predominantTexture (16 bytes at 0x40..0x4F)
+      ned8.copy(hdr, 0x50);            // noEffectDoodad (8 bytes at 0x50..0x57)
       hdr.writeUInt32LE(ofsMclq, 0x60);
       hdr.writeUInt32LE(sizeLiquid, 0x64);
       hdr.writeFloatLE(chunkNwX, 0x68);
       hdr.writeFloatLE(chunkNwY, 0x6C);
       hdr.writeFloatLE(0.0, 0x70);
 
-      const mcnkPayload = Buffer.concat([hdr, mcvtChunk, mcnrChunk, mclyChunk, mclqChunk]);
+      const mcnkPayload = Buffer.concat([hdr, mcvtChunk, mcnrChunk, mclyChunk, mcalChunk, mcshChunk, mclqChunk]);
       mcnkChunks.push(makeIffChunk('KNCM', mcnkPayload));
     }
   }
@@ -1165,7 +1641,7 @@ function buildAdtTile(tx, ty, wmoInfo = null) {
 }
 
 async function buildTerrain() {
-  console.log('[3/5] Building 5 Enterable Celandia WMO Interiors, Map 1 (Elsewhere), & 4x4 WDT/ADT tiles...');
+  console.log('[3/5] Building 5 Enterable Celandia WMO Interiors, Map 1 (Elsewhere), WDL Horizon, & 4x4 Splat ADT tiles...');
   const wmoInfo = await buildCelandiaWmosAndElsewhere({
     writeFile,
     WdbcBuilder,
@@ -1182,10 +1658,13 @@ async function buildTerrain() {
     }
   }
   const wdtBuf = buildWdtFile(activeTiles);
-  // Write under Celandia, Azeroth (map 0), and Kalimdor (map 1) so all map IDs resolve cleanly
+  const wdlBuf = buildWdlFile();
+  // Write WDT & WDL under Celandia, Azeroth (map 0), Kalimdor (map 1), and Elsewhere so all map IDs resolve cleanly
   for (const mapDir of ['Celandia', 'Azeroth', 'Kalimdor']) {
     writeFile(`World/Maps/${mapDir}/${mapDir}.wdt`, wdtBuf);
+    writeFile(`World/Maps/${mapDir}/${mapDir}.wdl`, wdlBuf);
   }
+  writeFile('World/Maps/Elsewhere/Elsewhere.wdl', wdlBuf);
 
   let trsLines = ['dir: Celandia', 'dir: Azeroth', 'dir: Kalimdor', 'dir: Elsewhere'];
   const biomeMinimapRgb = [
@@ -1827,26 +2306,28 @@ function buildDbcs(wmoInfo) {
   writeFile('DBFilesClient/LightParams.dbc', lpDbc.toBuffer());
 
   const libDbc = new WdbcBuilder(34);
-  // 18 bands per LightParam
+  // 18 bands per LightParam matching `crates/benilla-formats/src/light/atmosphere.rs`:
+  // 0=IB_DIFFUSE, 1=IB_AMBIENT, 2..6=IB_SKY0..4, 7=IB_FOG_COLOR, 9=IB_SUN_COLOR,
+  // 10..12=IB_CLOUD_SUN/SLOPE/GBASE, 14..15=IB_OCEAN_SHALLOW/DEEP, 16..17=IB_RIVER_SHALLOW/DEEP
   const bandColors = [
-    0xffe8d8, // 0: diffuse sun
-    0x8a7fa0, // 1: ambient
-    0xb8d4f8, // 2: sky top
-    0xd8e8ff, // 3: sky mid
-    0xf4e4f0, // 4: sky horizon
-    0xffe8e0, // 5: sky above horizon
-    0xfff0e4, // 6: sky glow
-    0xe8dff4, // 7: fog color
-    0xffffff, // 8: sun color
-    0xfff4ea, // 9: cloud sun
-    0xd8d0e8, // 10: cloud slope
-    0xc4bcd8, // 11: cloud base
-    0x5ad8d0, // 12: river shallow
-    0x2c7a8c, // 13: river deep
-    0x6ad8e8, // 14: ocean shallow
-    0x1e4868, // 15: ocean deep
-    0xffffff,
-    0xffffff,
+    0xffe6d4, // 0: IB_DIFFUSE (warm porcelain-gold sunlight)
+    0x9486ab, // 1: IB_AMBIENT (lush lavender-plum shadow fill so ground & foliage are vibrant)
+    0x6ca2dc, // 2: IB_SKY0 (zenith cerulean-sapphire)
+    0x98c4ec, // 3: IB_SKY1 (upper sky frostbell azure)
+    0xd4dcf6, // 4: IB_SKY2 (mid sky pearlescent mist)
+    0xf5d6e6, // 5: IB_SKY3 (lower horizon porcelain rose)
+    0xffebd8, // 6: IB_SKY4 (horizon aureate champagne glow)
+    0xdfd4ec, // 7: IB_FOG_COLOR (soft distant lavender-pearl atmospheric haze)
+    0xffe8d8, // 8: unused/auxiliary
+    0xfff2c8, // 9: IB_SUN_COLOR (radiant golden sun disc & specular tint)
+    0xfff0dc, // 10: IB_CLOUD_SUN
+    0xd8cce8, // 11: IB_CLOUD_SLOPE
+    0xc4b8d8, // 12: IB_CLOUD_GBASE
+    0x5ad8d0, // 13: auxiliary
+    0x6ad8e8, // 14: IB_OCEAN_SHALLOW (Elsewhere Tide seafoam turquoise)
+    0x1e4c6e, // 15: IB_OCEAN_DEEP (deep sapphire ocean)
+    0x78ece4, // 16: IB_RIVER_SHALLOW (crystalline lagoon aqua)
+    0x2c7a8c, // 17: IB_RIVER_DEEP (deep lagoon teal)
   ];
   for (let p = 1; p <= 7; p++) {
     for (let b = 0; b < 18; b++) {
@@ -1864,7 +2345,9 @@ function buildDbcs(wmoInfo) {
   writeFile('DBFilesClient/LightIntBand.dbc', libDbc.toBuffer());
 
   const lfbDbc = new WdbcBuilder(34);
-  const floatDefaults = [4200.0, 0.25, 0.2, 0.5, 1.0, 0.0]; // fogEnd (inches = yards*36), fogStartMult, cloudDensity...
+  // FloatBand 0 = FB_FOG_END in inches (divided by 36 at load -> 32400 / 36 = 900 yards!),
+  // FloatBand 1 = FB_FOG_START_MULT (0.42 -> fog starts gently at 378 yards), FloatBand 3 = FB_CLOUD_DENSITY
+  const floatDefaults = [32400.0, 0.42, 0.2, 0.45, 1.0, 0.0];
   for (let p = 1; p <= 7; p++) {
     for (let b = 0; b < 6; b++) {
       const id = (p - 1) * 6 + b + 1;
@@ -1967,7 +2450,7 @@ function buildDbcs(wmoInfo) {
     'CreatureType.dbc', 'DurabilityCosts.dbc', 'DurabilityQuality.dbc',
     'Emotes.dbc', 'EmotesText.dbc', 'EmotesTextData.dbc', 'EmotesTextSound.dbc',
     'EnvironmentalDamage.dbc', 'Exhaustion.dbc',
-    'GameTips.dbc', 'GMTicketCategory.dbc', 'GroundEffectDoodad.dbc',
+    'GameTips.dbc', 'GMTicketCategory.dbc',
     'ItemBagFamily.dbc', 'ItemPetFood.dbc', 'ItemRandomProperties.dbc', 'ItemSet.dbc',
     'ItemVisualEffects.dbc', 'ItemVisuals.dbc', 'Languages.dbc',
     'LanguageWords.dbc', 'LiquidType.dbc', 'Lock.dbc', 'LockType.dbc',

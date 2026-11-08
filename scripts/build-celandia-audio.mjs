@@ -1575,10 +1575,39 @@ export function buildCelandiaAudio(writeFile, WdbcBuilder, f32) {
   for (const row of terrainTypeRows) terrainTypeDbc.addRow(row);
   writeFile('DBFilesClient/TerrainType.dbc', terrainTypeDbc.build());
 
+  const groundEffectDoodadDbc = new WdbcBuilder(3, [2]);
+  const detailDoodadRows = [
+    [1, 1, 'PorcelainGrassTuft.mdl'],
+    [2, 2, 'PorcelainWildflower.mdl'],
+    [3, 3, 'PorcelainFern.mdl'],
+    [4, 4, 'FrostbellSnowTuft.mdl'],
+    [5, 5, 'FrostbellIceCrystal.mdl'],
+    [6, 6, 'GlasswakeSucculent.mdl'],
+    [7, 7, 'AureateGoldenWheat.mdl'],
+    [8, 8, 'AureateSunflower.mdl'],
+    [9, 9, 'NocturnumGlowShroom.mdl'],
+    [10, 10, 'NocturnumVioletMoss.mdl'],
+  ];
+  for (const row of detailDoodadRows) groundEffectDoodadDbc.addRow(row);
+  writeFile('DBFilesClient/GroundEffectDoodad.dbc', groundEffectDoodadDbc.build());
+
+  const NO_DOODAD = 0xFFFFFFFF;
   const groundEffectTextureDbc = new WdbcBuilder(7, []);
-  for (let i = 0; i <= 10; i++) {
-    groundEffectTextureDbc.addRow([i + 1, 0, 0, 0, 0, 0, i]);
-  }
+  const groundEffectTextureRows = [
+    // [ID, Doodad0, Doodad1, Doodad2, Doodad3, Density, TerrainType]
+    [1, 6, 1, NO_DOODAD, NO_DOODAD, 10, 0],                   // 1: Dirt (TerrainType 0)
+    [2, NO_DOODAD, NO_DOODAD, NO_DOODAD, NO_DOODAD, 0, 1],    // 2: Metallic (TerrainType 1)
+    [3, NO_DOODAD, NO_DOODAD, NO_DOODAD, NO_DOODAD, 0, 2],    // 3: Stone / Cobblestone Road / Cliff (TerrainType 2)
+    [4, 4, 5, 4, 2, 20, 3],                                   // 4: Frostbell Snow (TerrainType 3 + Footprints)
+    [5, NO_DOODAD, NO_DOODAD, NO_DOODAD, NO_DOODAD, 0, 4],    // 5: Wood (TerrainType 4)
+    [6, 1, 2, 3, 1, 24, 5],                                   // 6: Porcelain Wake Grass (TerrainType 5)
+    [7, 2, 3, 8, 1, 24, 6],                                   // 7: Celandia Wildflower Meadow (TerrainType 6 Leaves)
+    [8, 6, 7, 6, 1, 16, 7],                                   // 8: Glasswake Sand (TerrainType 7 + Footprints)
+    [9, 9, 10, 9, 3, 22, 8],                                  // 9: Nocturnum Bioluminescent Moss (TerrainType 8 Soggy)
+    [10, 7, 8, 1, 2, 22, 9],                                  // 10: Aureate Golden Terrace (TerrainType 9 DustyGrass)
+    [11, NO_DOODAD, NO_DOODAD, NO_DOODAD, NO_DOODAD, 0, 10],  // 11: None (TerrainType 10)
+  ];
+  for (const row of groundEffectTextureRows) groundEffectTextureDbc.addRow(row);
   writeFile('DBFilesClient/GroundEffectTexture.dbc', groundEffectTextureDbc.build());
 
   const footprintTexturesDbc = new WdbcBuilder(2, [1]);
