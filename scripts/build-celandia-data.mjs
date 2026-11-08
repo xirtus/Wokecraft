@@ -45,6 +45,7 @@ import { buildHumanoidAnimations, buildCreatureAnimations, buildAnimationDataDbc
 import { buildCelandiaWmosAndElsewhere } from './build-celandia-wmo.mjs';
 import { buildCelandiaAudio } from './build-celandia-audio.mjs';
 import { buildCelandiaUi } from './build-celandia-ui.mjs';
+import { buildCelandiaDryadAndCreatures } from './build-celandia-dryad-and-creatures.mjs';
 
 function ensureDir(filePath) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -625,6 +626,7 @@ function buildProceduralPartsGlb(parts, animStyle = 'idle', creatureType = 'Porc
 
     const posAttr = g.attributes.position;
     const normAttr = g.attributes.normal;
+    const colAttr = g.attributes.color;
     const n = posAttr.count;
     for (let i = 0; i < n; i++) {
       tmpPos.fromBufferAttribute(posAttr, i).applyMatrix4(mat);
@@ -635,7 +637,16 @@ function buildProceduralPartsGlb(parts, animStyle = 'idle', creatureType = 'Porc
       } else {
         allNorm.push(0, 1, 0);
       }
-      allCol.push(color.r, color.g, color.b, 1.0);
+      if (colAttr) {
+        allCol.push(
+          Math.min(1, colAttr.getX(i) * color.r),
+          Math.min(1, colAttr.getY(i) * color.g),
+          Math.min(1, colAttr.getZ(i) * color.b),
+          1.0
+        );
+      } else {
+        allCol.push(color.r, color.g, color.b, 1.0);
+      }
       allJoints.push(0, 0, 0, 0);
       allWeights.push(1, 0, 0, 0);
     }
@@ -1089,6 +1100,14 @@ function buildModels() {
     ], 'static');
     writeFile(fxPath, fxGlb);
   }
+
+  // Upgrade all trees, ground clutter, fauna, world boss & bad guys with Dryad + Celandia sculpted geometry
+  buildCelandiaDryadAndCreatures({
+    writeFile,
+    buildProceduralPartsGlb,
+    exportCelandiaCharacterGlb,
+    charScale,
+  });
 }
 
 // ============================================================================

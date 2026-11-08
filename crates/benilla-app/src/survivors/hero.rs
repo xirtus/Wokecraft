@@ -31,22 +31,29 @@ const GRAVITY: f32 = 19.291_105;
 
 /// Radians of orbit per raw mouse unit while right-dragging.
 const ORBIT_RATE: f32 = 0.008;
-/// Elevation clamp (radians): ~10°..~83° above the horizon, so the camera never dives underground.
-const PITCH_MIN: f32 = 0.18;
+/// Elevation clamp (radians): ~8°..~83° above the horizon, so the camera never dives underground.
+const PITCH_MIN: f32 = 0.14;
 const PITCH_MAX: f32 = 1.45;
-/// The locked view's tilt.
-const FIXED_PITCH: f32 = 61.0 * std::f32::consts::PI / 180.0;
+/// Celandia 3/4 adventure horizon tilt (`32°`), showcasing 3D sculpted characters, Dryad trees,
+/// kingdom palaces, and the sky horizon instead of a stiff vertical top-down view.
+const FIXED_PITCH: f32 = 32.0 * std::f32::consts::PI / 180.0;
 /// Wheel zoom range, yards from the hero's shoulders.
 const ZOOM_MIN: f32 = 1.5;
 const ZOOM_MAX: f32 = 70.0;
 
-/// Whether the camera is locked; `C` toggles it.
+pub(super) const CAM_PRESETS: &[(f32, f32, &str)] = &[
+    (32.0 * std::f32::consts::PI / 180.0, 20.5, "Celandia 3/4 Horizon"),
+    (18.0 * std::f32::consts::PI / 180.0, 11.5, "Heroic Close-Up"),
+    (52.0 * std::f32::consts::PI / 180.0, 30.0, "Tactical Canopy"),
+];
+
+/// Whether the camera is locked; `C` toggles cursor-aim vs orbit-steer, `V` cycles angle presets.
 #[derive(Clone, Copy, PartialEq, Eq, Default)]
 pub(super) enum CamMode {
-    /// Locked top-down (58°), laptop-friendly — the original feel.
+    /// Celandia 3/4 horizon view where the hero faces the cursor (right-drag still orbits/tilts).
     #[default]
     Fixed,
-    /// Unlocked: a mouse drag swings and tilts it around the hero.
+    /// Unlocked: left or right mouse drag swings and tilts it around the hero.
     Orbit,
 }
 
@@ -59,16 +66,19 @@ pub(super) struct CamRig {
     /// Elevation above the horizon (radians), clamped so the camera never dives underground.
     pub pitch: f32,
     pub mode: CamMode,
+    /// Active Celandia camera angle preset (`0..3`), cycled with `V`.
+    pub preset: u8,
 }
 
 impl Default for CamRig {
     fn default() -> Self {
         Self {
-            dist: 30.0,
+            dist: 20.5,
             orbit: 0.6,
             yaw: 0.0,
             pitch: FIXED_PITCH,
             mode: CamMode::Fixed,
+            preset: 0,
         }
     }
 }
@@ -220,11 +230,9 @@ pub(super) fn drive_hero(
                 if keys.any_pressed([KeyCode::KeyD, KeyCode::ArrowRight]) {
                     dir.x += 1.0;
                 }
-                // In orbit mode WASD is camera-relative; in fixed mode it stays world-relative.
-                if rig.mode == CamMode::Orbit {
-                    let (sy, cy) = rig.yaw.sin_cos();
-                    dir = Vec3::new(dir.x * cy + dir.z * sy, 0.0, dir.z * cy - dir.x * sy);
-                }
+                // Keep WASD screen-relative whenever the camera yaw is rotated.
+                let (sy, cy) = rig.yaw.sin_cos();
+                dir = Vec3::new(dir.x * cy + dir.z * sy, 0.0, dir.z * cy - dir.x * sy);
             }
             let mut pos = tf.translation;
             // Locked, the hero faces the cursor and WASD moves him under it, so he backpedals and
@@ -330,7 +338,8 @@ pub(super) fn drop_stray_buttons(
     }
 }
 
-/// A slow orbit at the menu; in play, top-down until `C` unlocks it to swing and tilt.
+/// A Celandia low-angle showcase orbit at the menu; in play, Celandia 3/4 horizon framing
+/// (`V` cycles Celandia angle presets, right-drag orbits & tilts at any time, `C` toggles cursor-aim vs orbit-steer).
 pub(super) fn place_camera(
     time: Res<Time<Real>>,
     phase: Res<State<Phase>>,
@@ -344,18 +353,24 @@ pub(super) fn place_camera(
     hero: Query<&Transform, (With<Hero>, Without<WorldCamera>)>,
     mut cams: Query<&mut Transform, With<WorldCamera>>,
 ) {
-    // `C` unlocks the camera to swing and tilt during play (at the menu, `C` cycles Co-Op mode);
-    // locking it again snaps back to the top-down view, so world-relative WASD lines up with the
-    // screen again.
-    if *phase.get() != Phase::Menu && keys.just_pressed(KeyCode::KeyC) {
-        rig.mode = match rig.mode {
-            CamMode::Fixed => CamMode::Orbit,
-            CamMode::Orbit => {
-                rig.yaw = 0.0;
-                rig.pitch = FIXED_PITCH;
-                CamMode::Fixed
-            }
-        };
+    if *phase.get() != Phase::Menu {
+        if keys.just_pressed(KeyCode::KeyC) {
+            rig.mode = match rig.mode {
+                CamMode::Fixed => CamMode::Orbit,
+                CamMode::Orbit => {
+                    rig.yaw = 0.0;
+                    let (p_pitch, _, _) = CAM_PRESETS[rig.preset as usize];
+                    rig.pitch = p_pitch;
+                    CamMode::Fixed
+                }
+            };
+        }
+        if keys.just_pressed(KeyCode::KeyV) {
+            rig.preset = (rig.preset + 1) % (CAM_PRESETS.len() as u8);
+            let (p_pitch, p_dist, _) = CAM_PRESETS[rig.preset as usize];
+            rig.pitch = p_pitch;
+            rig.dist = p_dist;
+        }
     }
     // With no hero yet, the focus `drive_hero` grounded.
     let focus = hero.single().map_or(player.pos, |t| t.translation);
@@ -369,29 +384,31 @@ pub(super) fn place_camera(
         rig.dist = (rig.dist * (1.0 - 0.12 * notches).clamp(0.5, 1.5)).clamp(ZOOM_MIN, ZOOM_MAX);
     }
     let (eye, look) = if *phase.get() == Phase::Menu {
-        rig.orbit += time.delta_secs() * 0.2;
-        let d = 7.0;
+        rig.orbit += time.delta_secs() * 0.24;
+        let d = 6.2;
+        let pitch_wave = (rig.orbit * 0.65).sin() * 0.22;
         (
-            focus + Vec3::new(rig.orbit.sin() * d, 2.4, rig.orbit.cos() * d),
-            focus + Vec3::Y * 1.1,
+            focus + Vec3::new(rig.orbit.sin() * d, 1.58 + pitch_wave, rig.orbit.cos() * d),
+            focus + Vec3::Y * 1.24,
         )
     } else {
-        // Unlocked, either mouse button drags the camera around the hero, as in WoW.
-        if rig.mode == CamMode::Orbit && mouse.any_pressed([MouseButton::Left, MouseButton::Right])
-        {
+        // Right-drag always swings & tilts the camera; in Orbit mode, left-drag also swings it.
+        let dragging = mouse.pressed(MouseButton::Right)
+            || (rig.mode == CamMode::Orbit && mouse.pressed(MouseButton::Left));
+        if dragging {
             rig.yaw -= motion.delta.x * ORBIT_RATE;
             rig.pitch = (rig.pitch + motion.delta.y * ORBIT_RATE).clamp(PITCH_MIN, PITCH_MAX);
         }
         let indoors = world.indoors_at(focus) || world.interior().is_some();
         let eff_dist = if indoors { rig.dist.min(8.5) } else { rig.dist };
-        let eff_pitch = if indoors { rig.pitch.min(0.68) } else { rig.pitch };
+        let eff_pitch = if indoors { rig.pitch.min(0.62) } else { rig.pitch };
         let (sy, cy) = rig.yaw.sin_cos();
         let (sp, cp) = eff_pitch.sin_cos();
-        let look = focus + Vec3::Y * 1.4;
+        let look = focus + Vec3::Y * 1.65;
         let mut eye = look + Vec3::new(cp * sy, sp, cp * cy) * eff_dist;
         // Never under the ground: a low tilt on a slope would bury the lens.
         if let Some(h) = world.terrain_height_under(eye) {
-            eye.y = eye.y.max(h + 0.6);
+            eye.y = eye.y.max(h + 0.65);
         }
         (eye, look)
     };
