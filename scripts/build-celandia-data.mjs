@@ -1259,12 +1259,12 @@ function buildWdlFile() {
     if (dCenter < 1150.0) {
       return Math.round(sampleCelandiaHeight(wx, wy));
     }
-    // Majestic distant mountain ring on the horizon (1250..2400 yds out, like Screenshot 3)
+    // Gentle distant sea-stack silhouettes on the far horizon (never blocking the lower sky gradient)
     const ang = Math.atan2(wy, wx);
-    const ringT = Math.max(0.0, 1.0 - Math.abs(dCenter - 1750.0) / 550.0);
+    const ringT = Math.max(0.0, 1.0 - Math.abs(dCenter - 1650.0) / 380.0);
     if (ringT <= 0.0) return Math.round(atlas.SEA);
-    const peaks = (Math.sin(ang * 7.0 + 0.5) * 0.5 + 0.5) * 95.0 + (Math.cos(ang * 13.0 - 1.2) * 0.5 + 0.5) * 55.0;
-    return Math.round(atlas.SEA + (peaks + 25.0) * (ringT * ringT));
+    const islet = Math.max(0.0, Math.sin(ang * 5.0 + 0.5) * Math.cos(ang * 3.0 - 0.8)) * 28.0;
+    return Math.round(atlas.SEA + islet * (ringT * ringT));
   };
 
   for (let ty = 26; ty <= 37; ty++) {
@@ -2296,7 +2296,7 @@ function buildDbcs(wmoInfo) {
       1: 1,
       2: 0,
       3: 0,
-      4: f32(0.35), // bloom glow
+      4: f32(0.20), // gentle bloom glow (prevents sky/cloud whiteout in FFXGlow `screen + w * blur^2`)
       5: f32(0.55),
       6: f32(0.85),
       7: f32(0.65),
@@ -2311,23 +2311,23 @@ function buildDbcs(wmoInfo) {
   // 10..12=IB_CLOUD_SUN/SLOPE/GBASE, 14..15=IB_OCEAN_SHALLOW/DEEP, 16..17=IB_RIVER_SHALLOW/DEEP
   const bandColors = [
     0xffe6d4, // 0: IB_DIFFUSE (warm porcelain-gold sunlight)
-    0x9486ab, // 1: IB_AMBIENT (lush lavender-plum shadow fill so ground & foliage are vibrant)
-    0x6ca2dc, // 2: IB_SKY0 (zenith cerulean-sapphire)
-    0x98c4ec, // 3: IB_SKY1 (upper sky frostbell azure)
-    0xd4dcf6, // 4: IB_SKY2 (mid sky pearlescent mist)
-    0xf5d6e6, // 5: IB_SKY3 (lower horizon porcelain rose)
-    0xffebd8, // 6: IB_SKY4 (horizon aureate champagne glow)
-    0xdfd4ec, // 7: IB_FOG_COLOR (soft distant lavender-pearl atmospheric haze)
+    0x8e80a8, // 1: IB_AMBIENT (lush lavender-plum shadow fill so ground & foliage are vibrant)
+    0x1e3868, // 2: IB_SKY0 (zenith 90° deep royal sapphire-indigo)
+    0x345c96, // 3: IB_SKY1 (16.8° rich cerulean-azure sky)
+    0x526ea4, // 4: IB_SKY2 (9.8° twilight cornflower-amethyst)
+    0x7c6e9c, // 5: IB_SKY3 (3.7° warm orchid-lavender lower sky)
+    0x9e7c98, // 6: IB_SKY4 (1.8° rose-champagne horizon rim)
+    0x5a688c, // 7: IB_FOG_COLOR (0° rich slate-violet-blue horizon & WDL silhouette — never white!)
     0xffe8d8, // 8: unused/auxiliary
     0xfff2c8, // 9: IB_SUN_COLOR (radiant golden sun disc & specular tint)
-    0xfff0dc, // 10: IB_CLOUD_SUN
-    0xd8cce8, // 11: IB_CLOUD_SLOPE
-    0xc4b8d8, // 12: IB_CLOUD_GBASE
+    0xd8b4c8, // 10: IB_CLOUD_SUN (soft rose-gold cloud rim)
+    0x342e46, // 11: IB_CLOUD_SLOPE (cloud contrast slope ~0.20 so `slope*p + gbase` never saturates to white)
+    0x645c7e, // 12: IB_CLOUD_GBASE (soft twilight-lavender cloud base ~0.40)
     0x5ad8d0, // 13: auxiliary
-    0x6ad8e8, // 14: IB_OCEAN_SHALLOW (Elsewhere Tide seafoam turquoise)
-    0x1e4c6e, // 15: IB_OCEAN_DEEP (deep sapphire ocean)
-    0x78ece4, // 16: IB_RIVER_SHALLOW (crystalline lagoon aqua)
-    0x2c7a8c, // 17: IB_RIVER_DEEP (deep lagoon teal)
+    0x5ec8d8, // 14: IB_OCEAN_SHALLOW (Elsewhere Tide seafoam turquoise)
+    0x1b4668, // 15: IB_OCEAN_DEEP (deep sapphire ocean)
+    0x68dcd6, // 16: IB_RIVER_SHALLOW (crystalline lagoon aqua)
+    0x266e80, // 17: IB_RIVER_DEEP (deep lagoon teal)
   ];
   for (let p = 1; p <= 7; p++) {
     for (let b = 0; b < 18; b++) {
@@ -2345,9 +2345,9 @@ function buildDbcs(wmoInfo) {
   writeFile('DBFilesClient/LightIntBand.dbc', libDbc.toBuffer());
 
   const lfbDbc = new WdbcBuilder(34);
-  // FloatBand 0 = FB_FOG_END in inches (divided by 36 at load -> 32400 / 36 = 900 yards!),
-  // FloatBand 1 = FB_FOG_START_MULT (0.42 -> fog starts gently at 378 yards), FloatBand 3 = FB_CLOUD_DENSITY
-  const floatDefaults = [32400.0, 0.42, 0.2, 0.45, 1.0, 0.0];
+  // FloatBand 0 = FB_FOG_END in inches (divided by 36 at load -> 36000 / 36 = 1000 yards!),
+  // FloatBand 1 = FB_FOG_START_MULT (0.65 -> fog starts past 65% of farclip), FloatBand 3 = FB_CLOUD_DENSITY (0.22 wispy clouds)
+  const floatDefaults = [36000.0, 0.65, 0.2, 0.22, 1.0, 0.0];
   for (let p = 1; p <= 7; p++) {
     for (let b = 0; b < 6; b++) {
       const id = (p - 1) * 6 + b + 1;

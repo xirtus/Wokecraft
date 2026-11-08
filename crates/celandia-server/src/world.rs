@@ -732,11 +732,12 @@ async fn handle_world_opcode(
                 let _ = tx.send((SMSG_CHARACTER_LOGIN_FAILED, vec![0x42]));
                 return;
             };
-            // Ensure character is standing on valid terrain surface
+            // Ensure character is standing on valid terrain surface (never below ADT mesh)
             ch.zone_id = sample_celandia_area(ch.x, ch.y);
-            let ground_z = sample_celandia_height(ch.x, ch.y).max(-18.0) + 0.15;
-            if (ch.z - ground_z).abs() > 25.0 || ch.z < -25.0 {
+            let ground_z = sample_celandia_height(ch.x, ch.y).max(-18.0) + 0.35;
+            if ch.z < ground_z - 1.0 || (ch.z - ground_z).abs() > 25.0 || ch.z < -22.0 {
                 ch.z = ground_z;
+                ws.db.update_character(ch.clone());
             }
 
             *logged_in_guid = Some(guid);
@@ -958,11 +959,16 @@ async fn handle_world_opcode(
 
                     let mut ws = state.write().await;
                     let map_opt = if let Some(p) = ws.players.get_mut(&pguid) {
+                        let min_z = if p.character.map_id == 0 {
+                            sample_celandia_height(x, y).max(-19.5)
+                        } else {
+                            -5.0
+                        };
                         p.move_flags = flags;
                         p.move_time = time;
                         p.character.x = x;
                         p.character.y = y;
-                        p.character.z = z;
+                        p.character.z = z.max(min_z);
                         p.character.orientation = o;
                         p.character.zone_id = sample_celandia_area(x, y);
                         Some(p.character.map_id)

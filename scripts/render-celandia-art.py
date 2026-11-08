@@ -1019,12 +1019,20 @@ def build_terrain_tilesets_and_world_fx():
             slime[:, :, 3] = 235
             write_blp2(f"XTextures/slime/slime.{frame}.blp", Image.fromarray(slime, "RGBA"))
 
-    # Water foam / splash (`XTextures/splash/splash.blp`)
+    # Water foam / splash (`XTextures/splash/splash.blp` and `wake.blp`)
     splash_img = Image.new("RGBA", (128, 128), (220, 248, 255, 0))
     sp_draw = ImageDraw.Draw(splash_img)
     sp_draw.ellipse([16, 16, 112, 112], fill=(230, 250, 255, 195), outline=(255, 255, 255, 240), width=4)
     splash_img = splash_img.filter(ImageFilter.GaussianBlur(radius=3))
     write_blp2("XTextures/splash/splash.blp", splash_img)
+    write_blp2("XTextures/splash/wake.blp", splash_img)
+    write_blp2("Textures/waterpoop02.blp", splash_img)
+
+    # Weather particles (`Textures/weather/*.blp`) & SpellShadow (`Interface/SpellShadow/*.blp`)
+    for w_name in ["raindrop01", "raindropsplash01", "snowmist01", "snowflake01"]:
+        write_blp2(f"Textures/weather/{w_name}.blp", splash_img)
+    write_blp2("Interface/SpellShadow/Spell-Shadow-Acceptable.blp", splash_img)
+    write_blp2("Interface/SpellShadow/Spell-Shadow-Unacceptable.blp", splash_img)
 
     # 10. Unit Selection Ring (`Textures/unitselecttexture.blp`) & Shadow Blob (`Textures/shadowblob.blp`)
     sel_img = Image.new("RGBA", (128, 128), (0, 0, 0, 0))

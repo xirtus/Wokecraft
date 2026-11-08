@@ -241,7 +241,39 @@ pub fn sample_celandia_height(wx: f32, wy: f32) -> f32 {
             h = lerp(h, noct_h, noct_mask);
         }
     }
-    h
+
+    if h <= SEA_LEVEL + 0.5 {
+        return h;
+    }
+
+    // Match `sampleCelandiaHeight` in `scripts/build-celandia-data.mjs`:
+    // Smooth courtyard within 42 yards of each Kingdom hub & WMO footprint, rolling hills outside
+    const KINGDOM_HUBS: [[f32; 2]; 5] = [
+        [0.0, 0.0],
+        [430.0, 470.0],
+        [-40.0, -480.0],
+        [500.0, -330.0],
+        [-320.0, 360.0],
+    ];
+    let mut min_hub_dist = f32::INFINITY;
+    for &[hx, hy] in &KINGDOM_HUBS {
+        let d = (wx - hx).hypot(wy - hy);
+        if d < min_hub_dist {
+            min_hub_dist = d;
+        }
+        let d_wmo = (wx - (hx - 52.0)).hypot(wy - hy);
+        if d_wmo < min_hub_dist {
+            min_hub_dist = d_wmo;
+        }
+    }
+    let relief_mask = ((min_hub_dist - 42.0) / 48.0).clamp(0.0, 1.0);
+    if relief_mask <= 0.0 {
+        return h;
+    }
+    let ridge1 = (wx * 0.014 + wy * 0.011).sin() * (wx * 0.009 - wy * 0.015).cos();
+    let ridge2 = (wx * 0.031 - wy * 0.027 + 1.4).sin() * 0.5 + 0.5;
+    let extra_relief = (ridge1.max(0.0) * 9.5 + ridge2 * 3.8) * relief_mask;
+    h + extra_relief
 }
 
 /// Sample the `AreaTable.dbc` ID (1..=5) at WoW world coordinates `(wx, wy)`.
