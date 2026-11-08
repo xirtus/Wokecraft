@@ -759,6 +759,7 @@ function buildLoadingScreensAndUiChrome(writeFile, createBlp2) {
   });
   writeFile('Interface/Glues/LoadingBar/Loading-BarFill.blp', barFillBlp);
   writeFile('Interface/TargetingFrame/UI-StatusBar.blp', barFillBlp);
+  writeFile('Interface/TargetingFrame/UI-TargetingFrame-BarFill.blp', barFillBlp);
   writeFile('Interface/MainMenuBar/UI-XP-Bar.blp', barFillBlp);
 
   const barBorderBlp = createBlp2(256, 64, (x, y, w, h) => {
@@ -769,6 +770,7 @@ function buildLoadingScreensAndUiChrome(writeFile, createBlp2) {
   });
   writeFile('Interface/Glues/LoadingBar/Loading-BarBorder.blp', barBorderBlp);
   writeFile('Interface/CastingBar/UI-CastingBar-Border.blp', barBorderBlp);
+  writeFile('Interface/Tooltips/Nameplate-Border.blp', barBorderBlp);
 
   writeFile(
     'Interface/CastingBar/UI-CastingBar-Spark.blp',
@@ -1056,7 +1058,10 @@ function buildLoadingScreensAndUiChrome(writeFile, createBlp2) {
     })
   );
   writeFile('Interface/Minimap/UI-Minimap-ZoomInButton-Up.blp', circleBadgeBlp);
+  writeFile('Interface/Minimap/UI-Minimap-ZoomInButton-Disabled.blp', circleBadgeBlp);
   writeFile('Interface/Minimap/UI-Minimap-ZoomOutButton-Up.blp', circleBadgeBlp);
+  writeFile('Interface/Minimap/UI-Minimap-ZoomOutButton-Disabled.blp', circleBadgeBlp);
+  writeFile('Interface/Minimap/UI-TOD-Indicator.blp', circleBadgeBlp);
 
   // WorldMap outer frame tiles (`UI-WorldMap-Top1..4`, `Middle1..4`, `Bottom1..4`) & player/party icons
   const wmFrameTile = createBlp2(256, 256, (x, y, w, h) => {
@@ -1209,6 +1214,8 @@ function buildLoadingScreensAndUiChrome(writeFile, createBlp2) {
   for (const suffix of ['TopLeft', 'TopRight', 'BottomLeft', 'BottomRight']) {
     writeFile(`Interface/PaperDollInfoFrame/UI-Character-General-${suffix}.blp`, panelQuarterBlp);
   }
+  writeFile('Interface/PaperDollInfoFrame/UI-Character-ActiveTab.blp', btnUp);
+  writeFile('Interface/PaperDollInfoFrame/UI-Character-InActiveTab.blp', btnDown);
   writeFile('Interface/ContainerFrame/UI-BackpackBackground.blp', panelQuarterBlp);
   for (const suffix of ['TopLeft', 'TopRight', 'BotLeft', 'BotRight']) {
     writeFile(`Interface/QuestFrame/UI-QuestGreeting-${suffix}.blp`, panelQuarterBlp);
